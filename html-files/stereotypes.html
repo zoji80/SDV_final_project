@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Media Platform Score Explorer</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<style>
+:root {
+  --cream:#F5F0E8;
+  --dark:#1A1209;
+  --warm:#C8A96E;
+  --accent:#E8472A;
+  --muted:#6B5E4A;
+  --card:#FFFDF7;
+  --border:rgba(200,169,110,0.28);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  background:var(--cream);
+  color:var(--dark);
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+.hero{
+  min-height:58vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:4rem 2rem;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(200,169,110,0.11) 39px,rgba(200,169,110,0.11) 40px),
+    repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(200,169,110,0.11) 39px,rgba(200,169,110,0.11) 40px);
+  pointer-events:none;
+}
+
+.eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:2rem;
+  position:relative;
+}
+
+.hero h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.8rem,7vw,6rem);
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-.02em;
+  max-width:920px;
+  position:relative;
+}
+
+.hero h1 em{
+  font-style:italic;
+  color:var(--accent);
+}
+
+.hero-sub{
+  font-size:1rem;
+  color:var(--muted);
+  max-width:620px;
+  margin-top:1.5rem;
+  position:relative;
+}
+
+section{
+  max-width:1120px;
+  margin:0 auto;
+  padding:4rem 2rem;
+}
+
+.sec-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:var(--warm);
+  margin-bottom:.9rem;
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+}
+
+.sec-label::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--border);
+  max-width:90px;
+}
+
+h2{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.9rem,4vw,2.8rem);
+  font-weight:700;
+  line-height:1.2;
+  margin-bottom:.9rem;
+}
+
+.lead{
+  color:var(--muted);
+  max-width:720px;
+  margin-bottom:2.2rem;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:1.75rem;
+  box-shadow:0 10px 30px rgba(26,18,9,.04);
+}
+
+.card-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.2rem;
+  font-weight:700;
+  margin-bottom:.25rem;
+}
+
+.card-desc{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:.07em;
+  margin-bottom:1.25rem;
+}
+
+.controls-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.25rem;
+  margin-bottom:1.5rem;
+}
+
+@media(max-width:800px){
+  .controls-grid{grid-template-columns:1fr;}
+}
+
+.file-box{
+  border:1px dashed rgba(200,169,110,.7);
+  border-radius:14px;
+  padding:1.25rem;
+  background:rgba(200,169,110,.08);
+}
+
+input[type="file"]{
+  width:100%;
+  padding:.75rem;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--card);
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+}
+
+.platform-box,
+.color-box{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.6rem;
+}
+
+.check-pill{
+  display:flex;
+  align-items:center;
+  gap:.45rem;
+  padding:.55rem .75rem;
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:999px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.04em;
+  cursor:pointer;
+  transition:.18s;
+}
+
+.check-pill:hover{
+  border-color:rgba(232,71,42,.45);
+  transform:translateY(-1px);
+}
+
+.check-pill input{
+  accent-color:var(--accent);
+}
+
+.color-row{
+  display:grid;
+  grid-template-columns:44px 1fr 72px;
+  align-items:center;
+  gap:.65rem;
+  width:100%;
+  border-bottom:1px solid rgba(200,169,110,.12);
+  padding:.45rem 0;
+}
+
+.color-row label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+}
+
+.color-row span{
+  font-size:.82rem;
+}
+
+.color-row input{
+  width:54px;
+  height:28px;
+  border:none;
+  background:transparent;
+  cursor:pointer;
+}
+
+.stat-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:1.5rem;
+}
+
+@media(max-width:700px){
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+}
+
+.stat-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:1.15rem;
+  text-align:center;
+}
+
+.stat-num{
+  font-family:'Playfair Display',serif;
+  font-size:2.15rem;
+  font-weight:900;
+  line-height:1;
+  display:block;
+}
+
+.stat-label{
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.chart-wrap{
+  position:relative;
+  height:520px;
+  margin-top:1rem;
+}
+
+@media(max-width:700px){
+  .chart-wrap{height:650px;}
+}
+
+.note{
+  color:var(--muted);
+  font-size:.9rem;
+  margin-top:1rem;
+}
+
+.table-wrap{
+  overflow:auto;
+  margin-top:1rem;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.86rem;
+}
+
+th,td{
+  border-bottom:1px solid rgba(200,169,110,.18);
+  padding:.65rem .55rem;
+  text-align:left;
+  white-space:nowrap;
+}
+
+th{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--muted);
+}
+
+.badge{
+  display:inline-block;
+  padding:.2rem .5rem;
+  border-radius:6px;
+  background:rgba(200,169,110,.16);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+}
+
+.footer-space{height:4rem;}
+</style>
+</head>
+
+<body>
+<div class="hero">
+  <p class="eyebrow">Social media survey · platform comparison</p>
+  <h1>Which apps are linked to<br><em>which scores?</em></h1>
+  <p class="hero-sub">Upload your CSV, select one or more platforms, and compare the distribution of scores for questions 9–20.</p>
+</div>
+
+<section>
+  <p class="sec-label">01 — Load data</p>
+  <h2>Start with your survey CSV.</h2>
+  <p class="lead">The dashboard expects the original survey columns, including the platform column and questions 9–20. Multi-platform answers such as “Facebook, Instagram, YouTube” are handled automatically.</p>
+
+  <div class="controls-grid">
+    <div class="card">
+      <p class="card-title">Upload CSV</p>
+      <p class="card-desc">Use the exported survey file</p>
+      <div class="file-box">
+        <input type="file" id="csvFile" accept=".csv" />
+        <p class="note" id="loadStatus">No file loaded yet.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">Platform filters</p>
+      <p class="card-desc">Choose app/apps to compare</p>
+      <div class="platform-box" id="platformControls"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Question colours</p>
+    <p class="card-desc">Change the colour code used in the plot</p>
+    <div class="color-box" id="colorControls"></div>
+  </div>
+</section>
+
+<section>
+  <p class="sec-label">02 — Score distributions</p>
+  <h2>Question scores by selected platform.</h2>
+  <p class="lead">Each bar shows how many users gave score 1–5 for a specific question, within the selected platform group. If several platforms are selected, the chart uses users who reported at least one of those platforms.</p>
+
+  <div class="stat-row">
+    <div class="stat-card"><span class="stat-num" id="nUsers">0</span><span class="stat-label">Selected users</span></div>
+    <div class="stat-card"><span class="stat-num" id="avgAge">–</span><span class="stat-label">Average age</span></div>
+    <div class="stat-card"><span class="stat-num" id="topQ">–</span><span class="stat-label">Highest mean question</span></div>
+    <div class="stat-card"><span class="stat-num" id="topScore">–</span><span class="stat-label">Highest mean score</span></div>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Distribution plot</p>
+    <p class="card-desc">Counts per score value, grouped by question</p>
+    <div class="chart-wrap">
+      <canvas id="distChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem;">
+    <p class="card-title">Question averages</p>
+    <p class="card-desc">Useful for discussion and interpretation</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Short label</th>
+            <th>Mean score</th>
+            <th>n answers</th>
+          </tr>
+        </thead>
+        <tbody id="summaryTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="footer-space"></div>
+
+<script>
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.color = "#6B5E4A";
+
+const platformCol = "7. What social media platforms do you commonly use?";
+const ageCol = "1. What is your age?";
+
+const platforms = [
+  "Instagram",
+  "Facebook",
+  "Twitter",
+  "YouTube",
+  "Discord",
+  "Pinterest",
+  "TikTok",
+  "Snapchat",
+  "Reddit",
+  "LinkedIn"
+];
+
+const questions = [
+  {
+    q: "Q9",
+    short: "Purposeless use",
+    col: "9. How often do you find yourself using Social media without a specific purpose?",
+    color: "#E8472A"
+  },
+  {
+    q: "Q10",
+    short: "Distracted while busy",
+    col: "10. How often do you get distracted by Social media when you are busy doing something?",
+    color: "#C8A96E"
+  },
+  {
+    q: "Q11",
+    short: "Restless offline",
+    col: "11. Do you feel restless if you haven't used Social media in a while?",
+    color: "#534AB7"
+  },
+  {
+    q: "Q12",
+    short: "Easily distracted",
+    col: "12. On a scale of 1 to 5, how easily distracted are you?",
+    color: "#185FA5"
+  },
+  {
+    q: "Q13",
+    short: "Bothered by worries",
+    col: "13. On a scale of 1 to 5, how much are you bothered by worries?",
+    color: "#D4537E"
+  },
+  {
+    q: "Q14",
+    short: "Concentration issues",
+    col: "14. Do you find it difficult to concentrate on things?",
+    color: "#3B6D11"
+  },
+  {
+    q: "Q15",
+    short: "Social comparison",
+    col: "15. On a scale of 1-5, how often do you compare yourself to other successful people through the use of social media?",
+    color: "#BA7517"
+  },
+  {
+    q: "Q16",
+    short: "Comparison feelings",
+    col: "16. Following the previous question, how do you feel about these comparisons, generally speaking?",
+    color: "#888780"
+  },
+  {
+    q: "Q17",
+    short: "Validation seeking",
+    col: "17. How often do you look to seek validation from features of social media?",
+    color: "#0F6E56"
+  },
+  {
+    q: "Q18",
+    short: "Feeling depressed/down",
+    col: "18. How often do you feel depressed or down?",
+    color: "#9C4F1D"
+  },
+  {
+    q: "Q19",
+    short: "Fluctuating interest",
+    col: "19. On a scale of 1 to 5, how frequently does your interest in daily activities fluctuate?",
+    color: "#B65B80"
+  },
+  {
+    q: "Q20",
+    short: "Sleep issues",
+    col: "20. On a scale of 1 to 5, how often do you face issues regarding sleep? ",
+    color: "#2D5068"
+  }
+];
+
+let rawData = [];
+let selectedPlatforms = new Set(["Instagram"]);
+let distChart = null;
+
+function normalizeName(x){
+  return String(x || "").trim().replace(/\s+/g, " ");
+}
+
+function findColumn(row, wanted){
+  const keys = Object.keys(row);
+  const exact = keys.find(k => normalizeName(k) === normalizeName(wanted));
+  if (exact) return exact;
+
+  const wantedStart = normalizeName(wanted).slice(0, 10);
+  return keys.find(k => normalizeName(k).startsWith(wantedStart));
+}
+
+function asNumber(x){
+  const n = Number(String(x).trim());
+  return Number.isFinite(n) ? n : null;
+}
+
+function userHasPlatform(row, platform){
+  const col = findColumn(row, platformCol);
+  if (!col) return false;
+  return String(row[col] || "").toLowerCase().includes(platform.toLowerCase());
+}
+
+function getSelectedRows(){
+  const chosen = Array.from(selectedPlatforms);
+  if (chosen.length === 0) return [];
+
+  return rawData.filter(row =>
+    chosen.some(platform => userHasPlatform(row, platform))
+  );
+}
+
+function buildPlatformControls(){
+  const box = document.getElementById("platformControls");
+  box.innerHTML = platforms.map(platform => `
+    <label class="check-pill">
+      <input type="checkbox" value="${platform}" ${selectedPlatforms.has(platform) ? "checked" : ""} />
+      ${platform}
+    </label>
+  `).join("");
+
+  box.querySelectorAll("input").forEach(input => {
+    input.addEventListener("change", () => {
+      if (input.checked) selectedPlatforms.add(input.value);
+      else selectedPlatforms.delete(input.value);
+      updateDashboard();
+    });
+  });
+}
+
+function buildColorControls(){
+  const box = document.getElementById("colorControls");
+  box.innerHTML = questions.map((q, i) => `
+    <div class="color-row">
+      <label>${q.q}</label>
+      <span>${q.short}</span>
+      <input type="color" value="${q.color}" data-index="${i}" />
+    </div>
+  `).join("");
+
+  box.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", () => {
+      questions[Number(input.dataset.index)].color = input.value;
+      updateDashboard();
+    });
+  });
+}
+
+function getQuestionValue(row, q){
+  const col = findColumn(row, q.col);
+  if (!col) return null;
+  return asNumber(row[col]);
+}
+
+function getDistribution(rows){
+  const labels = ["1", "2", "3", "4", "5"];
+
+  const datasets = questions.map(q => {
+    const counts = [1,2,3,4,5].map(score =>
+      rows.filter(row => getQuestionValue(row, q) === score).length
+    );
+
+    return {
+      label: `${q.q} · ${q.short}`,
+      data: counts,
+      backgroundColor: q.color + "cc",
+      borderColor: q.color,
+      borderWidth: 1,
+      borderRadius: 4
+    };
+  });
+
+  return { labels, datasets };
+}
+
+function updateStats(rows){
+  document.getElementById("nUsers").textContent = rows.length;
+
+  const ages = rows
+    .map(row => {
+      const col = findColumn(row, ageCol);
+      return col ? asNumber(row[col]) : null;
+    })
+    .filter(x => x !== null);
+
+  const avgAge = ages.length ? ages.reduce((a,b)=>a+b,0) / ages.length : null;
+  document.getElementById("avgAge").textContent = avgAge ? avgAge.toFixed(1) : "–";
+
+  const means = questions.map(q => {
+    const vals = rows.map(row => getQuestionValue(row, q)).filter(x => x !== null);
+    const mean = vals.length ? vals.reduce((a,b)=>a+b,0) / vals.length : null;
+    return { ...q, mean, n: vals.length };
+  });
+
+  const validMeans = means.filter(x => x.mean !== null).sort((a,b) => b.mean - a.mean);
+  document.getElementById("topQ").textContent = validMeans.length ? validMeans[0].q : "–";
+  document.getElementById("topScore").textContent = validMeans.length ? validMeans[0].mean.toFixed(2) : "–";
+
+  const table = document.getElementById("summaryTable");
+  table.innerHTML = means.map(m => `
+    <tr>
+      <td><span class="badge">${m.q}</span></td>
+      <td>${m.short}</td>
+      <td>${m.mean === null ? "–" : m.mean.toFixed(2)}</td>
+      <td>${m.n}</td>
+    </tr>
+  `).join("");
+}
+
+function updateChart(rows){
+  const ctx = document.getElementById("distChart");
+  const data = getDistribution(rows);
+
+  if (distChart) distChart.destroy();
+
+  distChart = new Chart(ctx, {
+    type: "bar",
+    data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: {
+            boxWidth: 12,
+            font: { size: 10 }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            title: items => `Score ${items[0].label}`,
+            label: item => `${item.dataset.label}: ${item.parsed.y} users`
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: "Score value" },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: "Number of users" },
+          grid: { color: "rgba(200,169,110,0.12)" }
+        }
+      }
+    }
+  });
+}
+
+function updateDashboard(){
+  const rows = getSelectedRows();
+  updateStats(rows);
+  updateChart(rows);
+}
+
+function loadCSV(file){
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results){
+      rawData = results.data;
+      document.getElementById("loadStatus").textContent = `${rawData.length} rows loaded.`;
+      updateDashboard();
+    },
+    error: function(err){
+      document.getElementById("loadStatus").textContent = `Could not read file: ${err.message}`;
+    }
+  });
+}
+
+document.getElementById("csvFile").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (file) loadCSV(file);
+});
+
+buildPlatformControls();
+buildColorControls();
+updateDashboard();
+</script>
+</body>
+</html>

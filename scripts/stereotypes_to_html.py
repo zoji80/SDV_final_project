@@ -103,6 +103,7 @@ html = r"""
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
 <style>
 :root {
@@ -254,15 +255,21 @@ h2 {
 }
 
 .word-map-top {
-  display:flex;
-  justify-content:space-between;
-  gap:1rem;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) 430px;
+  gap:2rem;
+  align-items:start;
   margin-bottom:2rem;
 }
 
 .word-question {
   max-width:620px;
+  min-height:150px;
+}
+
+.word-buttons {
+  width:430px;
+  justify-content:flex-end;
 }
 
 .word-question-label {
@@ -425,19 +432,142 @@ h2 {
   color:rgba(245,240,232,.7);
 }
 
+.stereo-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px;
+}
+
+.stereo-card {
+  background:rgba(245,240,232,.06);
+  border:1px solid rgba(200,169,110,.18);
+  border-radius:16px;
+  padding:1.2rem;
+}
+
+.stereo-platform {
+  font-family:'Playfair Display',serif;
+  font-size:1.35rem;
+  font-weight:900;
+  color:var(--cream);
+}
+
+.stereo-claim {
+  color:rgba(245,240,232,.68);
+  font-size:.85rem;
+  margin:.4rem 0 .8rem;
+}
+
+.stereo-score {
+  font-family:'Playfair Display',serif;
+  font-size:2rem;
+  font-weight:900;
+  color:var(--warm);
+}
+
+.stereo-meta {
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:rgba(245,240,232,.55);
+  margin-top:.7rem;
+  line-height:1.6;
+}
+
+.reset-zoom {
+  margin-top:1rem;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--dark);
+  border-radius:999px;
+  padding:.55rem .9rem;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+
 @media(max-width:700px) {
-  .chart-wrap {
-    height:480px;
+  .word-map-top {
+    grid-template-columns:1fr;
   }
 
-  .word-map-card {
-    padding:1.4rem;
+  .word-buttons {
+    width:100%;
+    justify-content:flex-start;
   }
 
-  .word-map {
-    min-height:420px;
-    padding:1.4rem;
+  .word-question {
+    min-height:auto;
   }
+}
+
+.conclusion-card-dark {
+  background:var(--dark);
+  color:var(--cream);
+  border-radius:24px;
+  padding:2.6rem;
+  margin-top:2rem;
+  border:1px solid rgba(200,169,110,.25);
+  box-shadow:0 18px 45px rgba(26,18,9,.18);
+}
+
+.conclusion-card-dark .conclusion-kicker {
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--warm);
+  margin-bottom:.8rem;
+}
+
+.conclusion-card-dark h3 {
+  font-family:'Playfair Display',serif;
+  font-size:2.4rem;
+  line-height:1.1;
+  margin-bottom:1.2rem;
+}
+
+.conclusion-card-dark p {
+  color:rgba(245,240,232,.72);
+  max-width:780px;
+  margin-bottom:1rem;
+}
+
+.conclusion-card-dark strong {
+  color:var(--warm);
+  font-weight:500;
+}
+
+.conclusion-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:2.4rem;
+  margin-top:1.5rem;
+  box-shadow:0 12px 35px rgba(26,18,9,.06);
+}
+
+.conclusion-kicker {
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:.6rem;
+}
+
+.conclusion-card h3 {
+  font-family:'Playfair Display',serif;
+  font-size:2.2rem;
+  line-height:1.1;
+  margin-bottom:1rem;
+}
+
+.conclusion-card p {
+  color:var(--muted);
+  max-width:760px;
+  margin-bottom:.8rem;
 }
 </style>
 </head>
@@ -449,7 +579,8 @@ h2 {
   <h1>Was <em>grandma</em> right?</h1>
   <p class="hero-sub">
     Choose one or more platforms and compare how users score across purposeless use,
-    distraction, worries, validation seeking, mood, and sleep.
+    distraction, worries, validation seeking, mood, and sleep. Then chek out if 
+    the data support  the common stereotypes! Do they confirm what we all silently assumed?
   </p>
 </div>
 
@@ -458,7 +589,8 @@ h2 {
   <h2>Which platforms are linked to which feelings?</h2>
   <p class="lead">
     Select apps below. Each line shows the average score from 1 to 5 for users of that platform.
-    Higher means the behaviour or feeling was reported more often.
+    Higher means the behaviour or feeling was reported more often. Choose your apps, hover over points for detail 
+    and zoom in to explore!
   </p>
 
   <div class="card">
@@ -466,14 +598,16 @@ h2 {
     <div class="chart-wrap">
       <canvas id="scoreChart"></canvas>
     </div>
+    <button class="reset-zoom" onclick="scoreChart.resetZoom()">Reset zoom</button>
   </div>
 </section>
 
 <section>
   <p class="sec-label">02 — Strongest platform signal</p>
-  <h2>A word map of platform associations.</h2>
+  <h2>How do they affect our feelings?</h2>
   <p class="lead">
-    Pick a question. The platform names grow larger when their average score is higher.
+    Pick a question. The platform names grow larger when their average score is higher. 
+    Spoiler alert, there is one platform that stands out!
   </p>
 
   <div class="word-map-card">
@@ -501,7 +635,8 @@ h2 {
   <p class="sec-label">03 — So are they true?</p>
   <h2>Testing the stereotypes.</h2>
   <p class="lead">
-    We all have assumptions about different platforms. This section checks whether the data actually supports them.
+    We all have assumptions about different platforms. This section checks whether the data actually supports them. We excluded
+    TikTok from the ranking as it dominated all questions, as seen in the section before.
   </p>
 
   <div class="card">
@@ -514,7 +649,33 @@ h2 {
     <h3>What the data says</h3>
     <div id="stereotypeText"></div>
   </div>
+
+ <div class="conclusion-card-dark">
+  <p class="conclusion-kicker">Final takeaway</p>
+
+  <h3>And we have our winners</h3>
+
+  <p>
+    The data partially supports our hypothesis. After excluding TikTok, a strong runner-up appeared:
+    <strong>Snapchat</strong>.
+  </p>
+
+  <p>
+    It looks like platforms where users can chat, see what friends interact with, and combine public content
+    with personal messaging may be linked to higher scores across several indicators — especially the feeling
+    of not being enough.
+  </p>
+
+  <p>
+    Surprisingly, <strong>Twitter</strong> and <strong>Reddit</strong> were expected to be more negative platforms,
+    linked to feeling depressed, worried, or having trouble sleeping. However, both ranked lower on these questions,
+    and Twitter was even the lowest for “bothered by worries”.
+  </p>
+</div>
+
 </section>
+
+
 
 <script>
 const D = __DATA_JSON__;
@@ -551,7 +712,7 @@ const qLabels = D.questions.map(q => q.short);
 const platformControls = document.getElementById("platformControls");
 
 D.platforms.forEach((p) => {
-  const checked = ["Instagram", "TikTok", "YouTube"].includes(p.platform) ? "checked" : "";
+  const checked = ["Instagram"].includes(p.platform) ? "checked" : "";
 
   platformControls.innerHTML += `
     <label class="check">
@@ -590,30 +751,67 @@ const scoreChart = new Chart(document.getElementById("scoreChart"), {
           },
           label: item => `${item.dataset.label}: ${item.parsed.y.toFixed(2)} / 5`
         }
-      }
+      },
+      zoom: {
+  limits: {
+    y: {
+      min: 1,
+      max: 5,
+      minRange: 0.5
+    },
+    x: {
+      min: 0,
+      max: qLabels.length - 1,
+      minRange: 2
+    }
+  },
+  pan: {
+    enabled: true,
+    mode: "xy",
+    modifierKey: "shift"
+  },
+  zoom: {
+    wheel: {
+      enabled: true,
+      modifierKey: "ctrl"
+    },
+    pinch: {
+      enabled: true
+    },
+    drag: {
+      enabled: true,
+      backgroundColor: "rgba(232,71,42,0.12)",
+      borderColor: "rgba(232,71,42,0.45)",
+      borderWidth: 1
+    },
+    mode: "xy"
+  }
+}
     },
     scales: {
-      y: {
-        min: 1,
-        max: 5,
-        ticks: {
-          callback: value => value + "/5"
-        },
-        grid: {
-          color: "rgba(200,169,110,0.15)"
-        }
-      },
-      x: {
-        ticks: {
-          maxRotation: 55,
-          minRotation: 35,
-          color: ctx => QUESTION_COLORS[qIDs[ctx.index]]
-        },
-        grid: {
-          display: false
-        }
-      }
+  y: {
+    min: 1,
+    max: 5,
+    ticks: {
+      callback: value => value + "/5"
+    },
+    grid: {
+      color: "rgba(200,169,110,0.15)"
     }
+  },
+  x: {
+    min: 0,
+    max: qLabels.length - 1,
+    ticks: {
+      maxRotation: 55,
+      minRotation: 35,
+      color: ctx => QUESTION_COLORS[qIDs[ctx.index]]
+    },
+    grid: {
+      display: false
+    }
+  }
+}
   }
 });
 
@@ -710,56 +908,57 @@ function renderWordMap(qID, btn=null) {
 
 /* -----------------------------
    SECTION 03: STEREOTYPE CHECK
+   More rigorous: each stereotype can use several questions
 ----------------------------- */
 const stereotypes = [
   {
     platform: "YouTube",
-    question: "Q20",
-    claim: "YouTube users have trouble sleeping"
+    questions: ["Q20", "Q9", "Q10","Q19"],
+    claim: "YouTube users have trouble sleeping and are distracted"
   },
   {
     platform: "Instagram",
-    question: "Q15",
-    claim: "Instagram users compare themselves to others"
+    questions: ["Q15", "Q16", "Q17", "Q18"],
+    claim: "Instagram users compare themselves and seek validation"
   },
   {
     platform: "Facebook",
-    question: "Q9",
+    questions: ["Q9", "Q10", "Q11"],
     claim: "Facebook users scroll without a clear purpose"
   },
   {
     platform: "Twitter",
-    question: "Q18",
-    claim: "Twitter users feel depressed or down"
+    questions: ["Q13", "Q18", "Q19","Q20"],
+    claim: "Twitter users feel worried, down, or emotionally unstable"
   },
   {
     platform: "TikTok",
-    question: "Q14",
-    claim: "TikTok users have concentration issues"
+    questions: ["Q10", "Q12", "Q14"],
+    claim: "TikTok users are distracted and have concentration issues"
   },
   {
     platform: "Snapchat",
-    question: "Q17",
-    claim: "Snapchat users seek validation"
+    questions: ["Q10", "Q14", "Q11", "Q19"],
+    claim: "Snapchat users are anxious and distracted"
   },
   {
     platform: "Discord",
-    question: "Q11",
-    claim: "Discord users feel restless offline"
+    questions: ["Q9", "Q10", "Q11"],
+    claim: "Discord users use social media habitually and feel restless offline"
   },
   {
     platform: "Pinterest",
-    question: "Q16",
-    claim: "Pinterest users feel affected by comparisons"
+    questions: ["Q15", "Q16", "Q17","Q19"],
+    claim: "Pinterest users are affected by comparison"
   },
   {
     platform: "Reddit",
-    question: "Q13",
-    claim: "Reddit users are bothered by worries"
+    questions: ["Q13", "Q18", "Q20"],
+    claim: "Reddit users are worried, down, or have sleep issues"
   },
   {
     platform: "LinkedIn",
-    question: "Q15",
+    questions: ["Q15", "Q16", "Q13","Q17"],
     claim: "LinkedIn users compare themselves to successful people"
   }
 ];
@@ -772,8 +971,24 @@ function getQuestion(qID) {
   return D.questions.find(q => q.id === qID);
 }
 
-function rankPlatform(platformName, qID) {
-  const sorted = [...D.platforms].sort((a, b) => b.scores[qID] - a.scores[qID]);
+function meanScore(platform, questions) {
+  const vals = questions.map(q => platform.scores[q]);
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+function platformsForStereotypeAnalysis(targetPlatform) {
+  if (targetPlatform === "TikTok") {
+    return D.platforms;
+  }
+
+  return D.platforms.filter(p => p.platform !== "TikTok");
+}
+
+function rankPlatformComposite(platformName, questions) {
+  const sorted = platformsForStereotypeAnalysis(platformName).sort((a, b) => {
+    return meanScore(b, questions) - meanScore(a, questions);
+  });
+
   return sorted.findIndex(p => p.platform === platformName) + 1;
 }
 
@@ -782,9 +997,24 @@ function makeStereotypeSection() {
     .filter(s => getPlatform(s.platform))
     .map(s => {
       const p = getPlatform(s.platform);
-      const q = getQuestion(s.question);
-      const score = p.scores[s.question];
-      const rank = rankPlatform(s.platform, s.question);
+
+      const compositeScore = meanScore(p, s.questions);
+      const rank = rankPlatformComposite(s.platform, s.questions);
+
+      const topPlatform = platformsForStereotypeAnalysis(s.platform).sort((a, b) => {
+  return meanScore(b, s.questions) - meanScore(a, s.questions);
+})[0];
+
+const topScore = meanScore(topPlatform, s.questions);
+
+
+      const questionLabels = s.questions
+        .map(q => `${q}: ${getQuestion(q).short}`)
+        .join(", ");
+
+      const individualScores = s.questions
+        .map(q => `${q} = ${p.scores[q].toFixed(2)}`)
+        .join(", ");
 
       let verdict = "Weak";
       if (rank === 1) verdict = "Supported";
@@ -792,10 +1022,13 @@ function makeStereotypeSection() {
 
       return {
         ...s,
-        score,
+        score: compositeScore,
         rank,
         verdict,
-        questionLabel: q.short
+        questionLabels,
+        individualScores,
+        topPlatform: topPlatform.platform,
+topScore
       };
     });
 
@@ -804,7 +1037,7 @@ function makeStereotypeSection() {
     data: {
       labels: rows.map(r => r.platform),
       datasets: [{
-        label: "Score for stereotype-related question",
+        label: "Composite stereotype score",
         data: rows.map(r => r.score),
         backgroundColor: rows.map(r => {
           if (r.verdict === "Supported") return "#E8472A";
@@ -819,17 +1052,43 @@ function makeStereotypeSection() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
-        },
+  legend: {
+    display: true,
+    position: "bottom",
+    labels: {
+      generateLabels: function() {
+        return [
+          {
+            text: "Supported = ranked #1",
+            fillStyle: "#E8472A",
+            strokeStyle: "#1A1209",
+            lineWidth: 1
+          },
+          {
+            text: "Partly supported = ranked #2–3",
+            fillStyle: "#C8A96E",
+            strokeStyle: "#1A1209",
+            lineWidth: 1
+          },
+          {
+            text: "Weak = ranked below #3",
+            fillStyle: "#888780",
+            strokeStyle: "#1A1209",
+            lineWidth: 1
+          }
+        ];
+      }
+    }
+  },
         tooltip: {
           callbacks: {
             title: items => rows[items[0].dataIndex].claim,
             label: item => {
               const r = rows[item.dataIndex];
               return [
-                `Score: ${r.score.toFixed(2)} / 5`,
-                `Question: ${r.questionLabel}`,
+                `Composite score: ${r.score.toFixed(2)} / 5`,
+                `Based on: ${r.questions.join(", ")}`,
+                `Individual scores: ${r.individualScores}`,
                 `Rank: #${r.rank} among platforms`,
                 `Verdict: ${r.verdict}`
               ];
@@ -849,36 +1108,44 @@ function makeStereotypeSection() {
           }
         },
         x: {
-          grid: {
-            display: false
-          },
+          grid: { display: false },
           ticks: {
-            font: {
-              size: 10
-            }
+            font: { size: 10 }
           }
         }
       }
     }
   });
 
-  document.getElementById("stereotypeText").innerHTML = rows.map(r => {
-    const cls =
-      r.verdict === "Supported"
-        ? "v-supported"
-        : r.verdict === "Partly supported"
-          ? "v-partly"
-          : "v-weak";
+  document.getElementById("stereotypeText").innerHTML = `
+  <div class="stereo-grid">
+    ${rows.map(r => {
+      const cls =
+        r.verdict === "Supported"
+          ? "v-supported"
+          : r.verdict === "Partly supported"
+            ? "v-partly"
+            : "v-weak";
 
-    return `
-      <p>
-        <strong>${r.platform}</strong> — ${r.claim}
-        <span class="verdict ${cls}">${r.verdict}</span><br>
-        Score: <strong>${r.score.toFixed(2)} / 5</strong>.
-        Rank: <strong>#${r.rank}</strong> for ${r.questionLabel}.
-      </p>
-    `;
-  }).join("");
+      return `
+        <div class="stereo-card">
+          <div class="stereo-platform">${r.platform}</div>
+          <div class="stereo-claim">${r.claim}</div>
+
+          <span class="verdict ${cls}">${r.verdict}</span>
+
+          <div class="stereo-score">${r.score.toFixed(2)} / 5</div>
+
+          <div class="stereo-meta">
+            Rank: #${r.rank}<br>
+            Highest: ${r.topPlatform} (${r.topScore.toFixed(2)} / 5)<br>
+            Questions: ${r.questions.join(", ")}
+          </div>
+        </div>
+      `;
+    }).join("")}
+  </div>
+`;
 }
 
 updateChart();

@@ -3,24 +3,345 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Who Are Extremas?</title>
+<title>Who Are Extremes?</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
 <style>
-:root{--cream:#F5F0E8;--dark:#1A1209;--warm:#C8A96E;--accent:#E8472A;--muted:#6B5E4A;--card:#FFFDF7;--border:rgba(200,169,110,0.28)}
-*{box-sizing:border-box;margin:0;padding:0}body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.7;overflow-x:hidden}
-.hero{min-height:72vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:4rem 2rem;position:relative;overflow:hidden}.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(200,169,110,.11) 39px,rgba(200,169,110,.11) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(200,169,110,.11) 39px,rgba(200,169,110,.11) 40px);pointer-events:none}.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:2rem;position:relative}.hero h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,8vw,6.5rem);font-weight:900;line-height:1;max-width:950px;position:relative}.hero h1 em{color:var(--accent);font-style:italic}.hero-sub{max-width:580px;color:var(--muted);margin-top:1.75rem;position:relative}
-section{max-width:1100px;margin:0 auto;padding:5rem 2rem}.sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--warm);margin-bottom:.9rem}h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);line-height:1.15;margin-bottom:.9rem}.lead{max-width:720px;color:var(--muted);margin-bottom:2rem}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:2rem;margin-bottom:1.5rem;box-shadow:0 10px 30px rgba(26,18,9,.04)}.dark-card{background:var(--dark);color:var(--cream);border-radius:24px;padding:2.4rem;border:1px solid rgba(200,169,110,.25);box-shadow:0 18px 45px rgba(26,18,9,.18);margin-bottom:1.5rem}.dark-card p{color:rgba(245,240,232,.72)}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.chart-wrap{position:relative;height:330px}.chart-small{height:270px}.stat{background:rgba(245,240,232,.06);border:1px solid rgba(200,169,110,.18);border-radius:16px;padding:1.2rem}.stat-num{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:var(--warm);display:block;line-height:1}.stat-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(245,240,232,.55);margin-top:.5rem}.table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:11px}.table th,.table td{border-bottom:1px solid var(--border);padding:.75rem .45rem;text-align:left}.table th{color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:.12em}.person-card{background:var(--dark);color:var(--cream);border-radius:20px;padding:1.6rem;border:1px solid rgba(200,169,110,.25);position:relative;overflow:hidden}.person-card::after{content:attr(data-age);position:absolute;right:1rem;top:-.6rem;font-family:'Playfair Display',serif;font-weight:900;font-size:5rem;color:rgba(200,169,110,.11);line-height:1}.person-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;margin-bottom:.35rem}.person-meta{color:rgba(245,240,232,.7);font-size:.9rem;max-width:85%}.person-detail{font-family:'DM Mono',monospace;font-size:10px;color:rgba(245,240,232,.55);margin-top:1rem;line-height:1.7}.severity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.severity-card{background:linear-gradient(135deg,rgba(232,71,42,.18),rgba(200,169,110,.10));border:1px solid rgba(232,71,42,.25);border-radius:18px;padding:1.4rem;min-height:180px}.severity-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900}.severity-score{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:var(--accent);line-height:1;margin:.8rem 0}.severity-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7}.note{font-size:.9rem;color:var(--muted);background:rgba(200,169,110,.12);border-left:3px solid var(--warm);padding:1rem;border-radius:10px;margin-bottom:1.5rem}@media(max-width:780px){.grid-2,.grid-3{grid-template-columns:1fr}.chart-wrap{height:300px}}
+:root {
+  --cream:#F5F0E8;
+  --dark:#1A1209;
+  --warm:#C8A96E;
+  --accent:#E8472A;
+  --muted:#6B5E4A;
+  --card:#FFFDF7;
+  --border:rgba(200,169,110,0.28);
+}
+
+* {
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body {
+  background:var(--cream);
+  color:var(--dark);
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+.hero {
+  min-height:72vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:4rem 2rem;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(200,169,110,.11) 39px,rgba(200,169,110,.11) 40px),
+    repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(200,169,110,.11) 39px,rgba(200,169,110,.11) 40px);
+  pointer-events:none;
+}
+
+.eyebrow {
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:2rem;
+  position:relative;
+}
+
+.hero h1 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(3rem,8vw,6.5rem);
+  font-weight:900;
+  line-height:1;
+  max-width:950px;
+  position:relative;
+}
+
+.hero h1 em {
+  color:var(--accent);
+  font-style:italic;
+}
+
+.hero-sub {
+  max-width:620px;
+  color:var(--muted);
+  margin-top:1.75rem;
+  position:relative;
+}
+
+section {
+  max-width:1100px;
+  margin:0 auto;
+  padding:5rem 2rem;
+}
+
+.sec-label {
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:var(--warm);
+  margin-bottom:.9rem;
+}
+
+h2 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2rem,4vw,3rem);
+  line-height:1.15;
+  margin-bottom:.9rem;
+}
+
+.lead {
+  max-width:720px;
+  color:var(--muted);
+  margin-bottom:2rem;
+}
+
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:2rem;
+  margin-bottom:1.5rem;
+  box-shadow:0 10px 30px rgba(26,18,9,.04);
+}
+
+.dark-card {
+  background:var(--dark);
+  color:var(--cream);
+  border-radius:24px;
+  padding:2.4rem;
+  border:1px solid rgba(200,169,110,.25);
+  box-shadow:0 18px 45px rgba(26,18,9,.18);
+  margin-bottom:1.5rem;
+}
+
+.grid-2 {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.5rem;
+}
+
+.grid-3 {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1rem;
+}
+
+.chart-wrap {
+  position:relative;
+  height:330px;
+}
+
+.chart-small {
+  height:270px;
+}
+
+.stat {
+  background:rgba(245,240,232,.06);
+  border:1px solid rgba(200,169,110,.18);
+  border-radius:16px;
+  padding:1.2rem;
+}
+
+.stat-num {
+  font-family:'Playfair Display',serif;
+  font-size:2.4rem;
+  font-weight:900;
+  color:var(--warm);
+  display:block;
+  line-height:1;
+}
+
+.stat-label {
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:rgba(245,240,232,.55);
+  margin-top:.5rem;
+}
+
+.table {
+  width:100%;
+  border-collapse:collapse;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+}
+
+.table th,
+.table td {
+  border-bottom:1px solid var(--border);
+  padding:.75rem .45rem;
+  text-align:left;
+}
+
+.table th {
+  color:var(--muted);
+  text-transform:uppercase;
+  font-size:9px;
+  letter-spacing:.12em;
+}
+
+.person-card {
+  background:var(--dark);
+  color:var(--cream);
+  border-radius:20px;
+  padding:1.6rem;
+  border:1px solid rgba(200,169,110,.25);
+  position:relative;
+  overflow:hidden;
+}
+
+.person-card::after {
+  content:attr(data-age);
+  position:absolute;
+  right:1rem;
+  top:-.6rem;
+  font-family:'Playfair Display',serif;
+  font-weight:900;
+  font-size:5rem;
+  color:rgba(200,169,110,.11);
+  line-height:1;
+}
+
+.person-title {
+  font-family:'Playfair Display',serif;
+  font-size:1.6rem;
+  font-weight:900;
+  margin-bottom:.35rem;
+}
+
+.person-meta {
+  color:rgba(245,240,232,.7);
+  font-size:.9rem;
+  max-width:85%;
+}
+
+.person-detail {
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:rgba(245,240,232,.55);
+  margin-top:1rem;
+  line-height:1.7;
+}
+
+.severity-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:14px;
+}
+
+.severity-card {
+  background:linear-gradient(135deg,rgba(232,71,42,.18),rgba(200,169,110,.10));
+  border:1px solid rgba(232,71,42,.25);
+  border-radius:18px;
+  padding:1.4rem;
+  min-height:180px;
+}
+
+.severity-title {
+  font-family:'Playfair Display',serif;
+  font-size:1.4rem;
+  font-weight:900;
+}
+
+.severity-score {
+  font-family:'Playfair Display',serif;
+  font-size:2.4rem;
+  font-weight:900;
+  color:var(--accent);
+  line-height:1;
+  margin:.8rem 0;
+}
+
+.severity-meta {
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  line-height:1.7;
+}
+
+.note {
+  font-size:.9rem;
+  color:var(--muted);
+  background:rgba(200,169,110,.12);
+  border-left:3px solid var(--warm);
+  padding:1rem;
+  border-radius:10px;
+  margin-bottom:1.5rem;
+}
+
+.toggle-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  margin-bottom:1rem;
+}
+
+.toggle-btn {
+  border:1px solid var(--border);
+  background:rgba(255,253,247,.8);
+  color:var(--dark);
+  border-radius:999px;
+  padding:.45rem .75rem;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+
+.toggle-btn.active {
+  background:var(--dark);
+  color:var(--cream);
+}
+
+@media(max-width:780px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns:1fr;
+  }
+
+  .chart-wrap {
+    height:300px;
+  }
+}
 </style>
 </head>
+
 <body>
-<div class="hero"><p class="eyebrow">A closer look at the respondents</p><h1>Lets look at the <em>extremes</em> </h1><p class="hero-sub"> Want to know what 
-else are the TikTokers doing? Where are the light scrollers? How are the non-users doing mentally? And what are the other outliers?
-</p> This page shows the the profiles of all of these different subgroups.
-</p>
+
+<div class="hero">
+  <p class="eyebrow">A closer look at the respondents</p>
+  <h1>Let’s look at the <em>extremes</em></h1>
+  <p class="hero-sub">
+    Want to know what else the TikTokers are doing? Where are the light scrollers?
+    How are the non-users doing mentally? And what are the other outliers?
+    This page shows the profiles of these different subgroups.
+  </p>
 </div>
+
 <section id="tiktok">
   <p class="sec-label">02 — TikTok users</p>
   <h2>Who are the TikTok users?</h2>
@@ -59,53 +380,112 @@ else are the TikTokers doing? Where are the light scrollers? How are the non-use
     </div>
   </div>
 </section>
-<section id="light"><p class="sec-label">03 — Light users</p><h2>Who spends less than one hour online?</h2><p class="lead">This section focuses only on people reporting less than one hour of social media per day.</p><div class="grid-2"><div class="card"><h3>Age distribution among light users</h3><div class="chart-wrap"><canvas id="lightAgeChart"></canvas></div></div><div class="card"><h3>Apps used by light users</h3><div class="chart-wrap"><canvas id="lightAppsChart"></canvas></div></div></div></section>
-new Chart(document.getElementById('olderTimeChart'), {
-  type: 'bar',
-  data: {
-    labels: D.older60.time.map(x => x.label),
-    datasets: [{
-      data: D.older60.time.map(x => x.n),
-      backgroundColor: '#3B6D11bb',
-      borderColor: '#3B6D11',
-      borderWidth: 1
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: c => `${c.parsed.y} respondents (${D.older60.time[c.dataIndex].pct}%)`
-        }
-      }
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: {
-          maxRotation: 35,
-          minRotation: 25
-        }
-      },
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-          precision: 0
-        },
-        title: {
-          display: true,
-          text: 'Number of 60+ respondents'
-        }
-      }
-    }
-  }
-});
-<section id="outliers"><p class="sec-label">05 — Outliers and extremes</p><h2>The most extreme profiles.</h2><p class="lead">This section shows respondents with a perfect 5/5 average across all mental-health questions, plus the youngest and oldest respondent profiles.</p><div class="card"><h3>Most severe health scores</h3><p class="note">Only respondents with an average score of exactly 5/5 across questions 9–20 are shown here.</p><div class="severity-grid" id="severityCards"></div></div><div class="grid-2" id="ageExtremeCards"></div></section>
-<section id="nonusers"><p class="sec-label">06 — Non-users</p><h2>A small separate analysis.</h2><p class="lead">These results are intentionally not compared against social media users. There are very few non-users, so this is shown as a descriptive snapshot rather than a general conclusion.</p><div class="dark-card"><p id="nonUserIntro"></p></div><div class="card"><h3>Non-user scores across mental-health questions</h3><div class="chart-wrap"><canvas id="nonUserChart"></canvas></div></div><div class="card"><h3>Non-user respondent table</h3><table class="table" id="nonUserTable"></table></div></section>
+
+<section id="light">
+  <p class="sec-label">03 — Light users</p>
+  <h2>Who spends less than one hour online?</h2>
+  <p class="lead">
+    This section focuses only on people reporting less than one hour of social media per day.
+  </p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Who are the light users?</h3>
+      <p class="note">
+        Choose whether to view light users by age, gender, or occupation.
+      </p>
+
+      <div class="toggle-row">
+        <button class="toggle-btn active" onclick="updateLightProfileChart('age', this)">Age</button>
+        <button class="toggle-btn" onclick="updateLightProfileChart('gender', this)">Gender</button>
+        <button class="toggle-btn" onclick="updateLightProfileChart('occupation', this)">Occupation</button>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="lightProfileChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Apps used by light users</h3>
+      <div class="chart-wrap">
+        <canvas id="lightAppsChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="older">
+  <p class="sec-label">04 — Older respondents</p>
+  <h2>What about people aged 60+?</h2>
+  <p class="lead">
+    For older respondents, the page reports the most used apps and how much time they spend on social media.
+  </p>
+
+  <div class="dark-card">
+    <div class="grid-3" id="olderStats"></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Most used apps among 60+</h3>
+      <div class="chart-wrap">
+        <canvas id="olderAppsChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Daily time among 60+</h3>
+      <div class="chart-wrap">
+        <canvas id="olderTimeChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="outliers">
+  <p class="sec-label">05 — Outliers and extremes</p>
+  <h2>The most extreme profiles.</h2>
+  <p class="lead">
+    This section shows respondents with a perfect 5/5 average across all mental-health questions,
+    plus the youngest and oldest respondent profiles.
+  </p>
+
+  <div class="card">
+    <h3>Most severe health scores</h3>
+    <p class="note">
+      Only respondents with an average score of exactly 5/5 across questions 9–20 are shown here.
+    </p>
+    <div class="severity-grid" id="severityCards"></div>
+  </div>
+
+  <div class="grid-2" id="ageExtremeCards"></div>
+</section>
+
+<section id="nonusers">
+  <p class="sec-label">06 — Non-users</p>
+  <h2>The last free souls or liars</h2>
+  <p class="lead">
+    Three respondents reported not using social media at all. This section keeps them separate, so their tiny sample size is clear.
+  </p>
+
+  <div class="card">
+    <h3>Non-user respondent table</h3>
+    <table class="table" id="nonUserTable"></table>
+  </div>
+
+  <div class="card">
+    <h3>Non-user scores across mental-health questions</h3>
+    <div class="chart-wrap">
+      <canvas id="nonUserChart"></canvas>
+    </div>
+  </div>
+
+  <div class="dark-card">
+    <p id="nonUserIntro"></p>
+  </div>
+</section>
+
 <script>
 const D = {
   "tiktok": {
@@ -238,6 +618,35 @@ const D = {
       {
         "ageGroup": "60+",
         "n": 0
+      }
+    ],
+    "genderDistribution": [
+      {
+        "label": "Male",
+        "n": 27,
+        "pct": 79.4
+      },
+      {
+        "label": "Female",
+        "n": 7,
+        "pct": 20.6
+      }
+    ],
+    "occupationDistribution": [
+      {
+        "label": "Salaried Worker",
+        "n": 21,
+        "pct": 61.8
+      },
+      {
+        "label": "University Student",
+        "n": 12,
+        "pct": 35.3
+      },
+      {
+        "label": "School Student",
+        "n": 1,
+        "pct": 2.9
       }
     ],
     "apps": [
@@ -531,40 +940,86 @@ const D = {
     ]
   }
 };
-const COLORS = ["#E8472A","#C8A96E","#534AB7","#185FA5","#D4537E","#3B6D11","#BA7517","#888780","#0F6E56","#A64253"];
-Chart.defaults.font.family = "'DM Mono', monospace"; Chart.defaults.color = "#6B5E4A";
-function makePie(id, rows){new Chart(document.getElementById(id),{type:'doughnut',data:{labels:rows.map(x=>x.label),datasets:[{data:rows.map(x=>x.n),backgroundColor:COLORS,borderColor:'#FFFDF7',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed} (${rows[c.dataIndex].pct}%)`}}}}})}
-document.getElementById('tiktokStats').innerHTML = `
-  <div class='stat'>
-    <span class='stat-num'>${D.tiktok.n}</span>
-    <div class='stat-label'>TikTok users</div>
+
+const COLORS = [
+  "#E8472A", "#C8A96E", "#534AB7", "#185FA5", "#D4537E",
+  "#3B6D11", "#BA7517", "#888780", "#0F6E56", "#A64253"
+];
+
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.color = "#6B5E4A";
+
+function makePie(id, rows) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  new Chart(el, {
+    type: "doughnut",
+    data: {
+      labels: rows.map(x => x.label),
+      datasets: [{
+        data: rows.map(x => x.n),
+        backgroundColor: COLORS,
+        borderColor: "#FFFDF7",
+        borderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: "58%",
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: {
+            boxWidth: 10,
+            font: { size: 10 }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: c => ` ${c.label}: ${c.parsed} (${rows[c.dataIndex].pct}%)`
+          }
+        }
+      }
+    }
+  });
+}
+
+/* -----------------------------
+   SECTION 02: TIKTOK USERS
+----------------------------- */
+document.getElementById("tiktokStats").innerHTML = `
+  <div class="stat">
+    <span class="stat-num">${D.tiktok.n}</span>
+    <div class="stat-label">TikTok users</div>
   </div>
-  <div class='stat'>
-    <span class='stat-num'>${D.tiktok.ageMean ?? '—'}</span>
-    <div class='stat-label'>Average age</div>
+  <div class="stat">
+    <span class="stat-num">${D.tiktok.ageMean ?? "—"}</span>
+    <div class="stat-label">Average age</div>
   </div>
-  <div class='stat'>
-    <span class='stat-num'>${D.tiktok.otherApps[0]?.label ?? '—'}</span>
-    <div class='stat-label'>Most common other app</div>
+  <div class="stat">
+    <span class="stat-num">${D.tiktok.otherApps[0]?.label ?? "—"}</span>
+    <div class="stat-label">Most common other app</div>
   </div>
 `;
 
-makePie('tiktokOccupationPie', D.tiktok.occupation);
-makePie('tiktokRelationshipPie', D.tiktok.relationship);
+makePie("tiktokOccupationPie", D.tiktok.occupation);
+makePie("tiktokRelationshipPie", D.tiktok.relationship);
 
-new Chart(document.getElementById('tiktokOtherAppsChart'), {
-  type: 'bar',
+new Chart(document.getElementById("tiktokOtherAppsChart"), {
+  type: "bar",
   data: {
     labels: D.tiktok.otherApps.map(x => x.label),
     datasets: [{
       data: D.tiktok.otherApps.map(x => x.n),
-      backgroundColor: '#E8472Abb',
-      borderColor: '#E8472A',
+      backgroundColor: "#E8472Abb",
+      borderColor: "#E8472A",
       borderWidth: 1
     }]
   },
   options: {
-    indexAxis: 'y',
+    indexAxis: "y",
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -578,33 +1033,152 @@ new Chart(document.getElementById('tiktokOtherAppsChart'), {
     scales: {
       x: {
         beginAtZero: true,
+        ticks: { stepSize: 1, precision: 0 },
         title: {
           display: true,
-          text: 'Number of TikTok users also using this app'
+          text: "Number of TikTok users also using this app"
         }
       },
-      y: {
-        grid: { display: false }
-      }
+      y: { grid: { display: false } }
     }
   }
 });
-new Chart(document.getElementById('lightAgeChart'),{type:'bar',data:{labels:D.lightUsers.ageDistribution.map(x=>x.ageGroup),datasets:[{data:D.lightUsers.ageDistribution.map(x=>x.n),backgroundColor:'#E8472Abb',borderColor:'#E8472A',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},title:{display:true,text:'Age group'}},y:{beginAtZero:true,title:{display:true,text:'Number of light users'},grid:{color:'rgba(200,169,110,.15)'}}}}});
-new Chart(document.getElementById('lightAppsChart'),{type:'bar',data:{labels:D.lightUsers.apps.map(x=>x.platform),datasets:[{data:D.lightUsers.apps.map(x=>x.n),backgroundColor:'#C8A96Ebb',borderColor:'#C8A96E',borderWidth:1}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.x} users (${D.lightUsers.apps[c.dataIndex].pct}%)`}}},scales:{x:{beginAtZero:true,title:{display:true,text:'Number of light users'}},y:{grid:{display:false}}}}});
-document.getElementById('olderStats').innerHTML = `<div class='stat'><span class='stat-num'>${D.older60.n}</span><div class='stat-label'>Respondents aged 60+</div></div><div class='stat'><span class='stat-num'>${D.older60.ageMean ?? '—'}</span><div class='stat-label'>Average age</div></div><div class='stat'><span class='stat-num'>${D.older60.ageMin ?? '—'}–${D.older60.ageMax ?? '—'}</span><div class='stat-label'>Age range</div></div>`;
-new Chart(document.getElementById('olderAppsChart'), {
-  type: 'bar',
+
+/* -----------------------------
+   SECTION 03: LIGHT USERS
+----------------------------- */
+let lightProfileChart = null;
+
+function updateLightProfileChart(mode, btn = null) {
+  if (btn) {
+    document.querySelectorAll(".toggle-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  }
+
+  let labels;
+  let values;
+  let xTitle;
+
+  if (mode === "age") {
+    labels = D.lightUsers.ageDistribution.map(x => x.ageGroup);
+    values = D.lightUsers.ageDistribution.map(x => x.n);
+    xTitle = "Age group";
+  } else if (mode === "gender") {
+    labels = D.lightUsers.genderDistribution.map(x => x.label);
+    values = D.lightUsers.genderDistribution.map(x => x.n);
+    xTitle = "Gender";
+  } else {
+    labels = D.lightUsers.occupationDistribution.map(x => x.label);
+    values = D.lightUsers.occupationDistribution.map(x => x.n);
+    xTitle = "Occupation";
+  }
+
+  if (lightProfileChart) {
+    lightProfileChart.destroy();
+  }
+
+  lightProfileChart = new Chart(document.getElementById("lightProfileChart"), {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: "#E8472Abb",
+        borderColor: "#E8472A",
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            maxRotation: 35,
+            minRotation: 20
+          },
+          title: { display: true, text: xTitle }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, precision: 0 },
+          title: { display: true, text: "Number of light users" },
+          grid: { color: "rgba(200,169,110,.15)" }
+        }
+      }
+    }
+  });
+}
+
+updateLightProfileChart("age");
+
+new Chart(document.getElementById("lightAppsChart"), {
+  type: "bar",
   data: {
-    labels: D.older60.apps.map(x => x.platform),
+    labels: D.lightUsers.apps.map(x => x.platform),
     datasets: [{
-      data: D.older60.apps.map(x => x.n),
-      backgroundColor: '#534AB7bb',
-      borderColor: '#534AB7',
+      data: D.lightUsers.apps.map(x => x.n),
+      backgroundColor: "#C8A96Ebb",
+      borderColor: "#C8A96E",
       borderWidth: 1
     }]
   },
   options: {
-    indexAxis: 'y',
+    indexAxis: "y",
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: c => `${c.parsed.x} users (${D.lightUsers.apps[c.dataIndex].pct}%)`
+        }
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: { stepSize: 1, precision: 0 },
+        title: { display: true, text: "Number of light users" }
+      },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+/* -----------------------------
+   SECTION 04: 60+ USERS
+----------------------------- */
+document.getElementById("olderStats").innerHTML = `
+  <div class="stat">
+    <span class="stat-num">${D.older60.n}</span>
+    <div class="stat-label">Respondents aged 60+</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num">${D.older60.ageMean ?? "—"}</span>
+    <div class="stat-label">Average age</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num">${D.older60.ageMin ?? "—"}–${D.older60.ageMax ?? "—"}</span>
+    <div class="stat-label">Age range</div>
+  </div>
+`;
+
+new Chart(document.getElementById("olderAppsChart"), {
+  type: "bar",
+  data: {
+    labels: D.older60.apps.map(x => x.platform),
+    datasets: [{
+      data: D.older60.apps.map(x => x.n),
+      backgroundColor: "#534AB7bb",
+      borderColor: "#534AB7",
+      borderWidth: 1
+    }]
+  },
+  options: {
+    indexAxis: "y",
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -618,29 +1192,166 @@ new Chart(document.getElementById('olderAppsChart'), {
     scales: {
       x: {
         beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-          precision: 0
-        },
-        title: {
-          display: true,
-          text: 'Number of 60+ users'
+        ticks: { stepSize: 1, precision: 0 },
+        title: { display: true, text: "Number of 60+ users" }
+      },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById("olderTimeChart"), {
+  type: "bar",
+  data: {
+    labels: D.older60.time.map(x => x.label),
+    datasets: [{
+      data: D.older60.time.map(x => x.n),
+      backgroundColor: "#3B6D11bb",
+      borderColor: "#3B6D11",
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: c => `${c.parsed.y} respondents (${D.older60.time[c.dataIndex].pct}%)`
         }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { maxRotation: 35, minRotation: 25 }
       },
       y: {
-        grid: { display: false }
+        beginAtZero: true,
+        ticks: { stepSize: 1, precision: 0 },
+        title: { display: true, text: "Number of 60+ respondents" }
       }
     }
   }
 });
-new Chart(document.getElementById('olderTimeChart'),{type:'bar',data:{labels:D.older60.time.map(x=>x.label),datasets:[{data:D.older60.time.map(x=>x.n),backgroundColor:'#3B6D11bb',borderColor:'#3B6D11',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} respondents (${D.older60.time[c.dataIndex].pct}%)`}}},scales:{x:{grid:{display:false},ticks:{maxRotation:35,minRotation:25}},y:{beginAtZero:true,title:{display:true,text:'Number of 60+ respondents'}}}}});
+
+/* -----------------------------
+   SECTION 05: OUTLIERS
+----------------------------- */
 const severity = D.outliers.perfectScorePeople;
-document.getElementById('severityCards').innerHTML = severity.length ? severity.map(p=>`<div class='severity-card'><div class='severity-title'>Respondent ${p.row}</div><div class='severity-score'>5.00 / 5</div><div class='severity-meta'>Age: ${p.age ?? 'Unknown'}<br>Occupation: ${p.occupation}<br>Relationship: ${p.relationship}<br>Platforms: ${p.platforms || 'None listed'}<br>Daily time: ${p.time || 'Unknown'}</div></div>`).join('') : `<div class='severity-card'><div class='severity-title'>No perfect 5/5 average</div><div class='severity-score'>0</div><div class='severity-meta'>No respondent averaged exactly 5/5 across all questions 9–20.</div></div>`;
-function personCard(title,p){return `<div class='person-card' data-age='${p.age}'><div class='person-title'>${title}</div><div class='person-meta'>${p.age} years old · ${p.gender} · ${p.relationship}</div><div class='person-detail'>Occupation: ${p.occupation}<br>Affiliation: ${p.affiliation}<br>Uses social media: ${p.usesSocial}<br>Platforms: ${p.platforms || 'None listed'}<br>Daily time: ${p.time || 'Unknown'}<br>Mean mental-health score: ${p.meanScore ?? '—'} / 5</div></div>`}
-document.getElementById('ageExtremeCards').innerHTML = personCard('Youngest respondent',D.outliers.youngest)+personCard('Oldest respondent',D.outliers.oldest);
-document.getElementById('nonUserIntro').innerHTML = `There are <strong>${D.nonUsers.n}</strong> non-users in this dataset. Because this is a very small group, the chart below should be read only as a descriptive snapshot of these records.`;
-new Chart(document.getElementById('nonUserChart'),{type:'bar',data:{labels:D.nonUsers.scores.map(x=>x.question),datasets:[{data:D.nonUsers.scores.map(x=>x.score),backgroundColor:'#E8472Abb',borderColor:'#E8472A',borderWidth:1}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.x ?? 'NA'} / 5`,afterLabel:c=>D.nonUsers.scores[c.dataIndex].full}}},scales:{x:{min:1,max:5,title:{display:true,text:'Average score among non-users only'}},y:{grid:{display:false},title:{display:true,text:'Mental-health question'}}}}});
-document.getElementById('nonUserTable').innerHTML = `<tr><th>Row</th><th>Age</th><th>Gender</th><th>Occupation</th><th>Relationship</th><th>Mean score</th></tr>` + D.nonUsers.people.map(p=>`<tr><td>${p.row}</td><td>${p.age}</td><td>${p.gender}</td><td>${p.occupation}</td><td>${p.relationship}</td><td>${p.meanScore ?? '—'} / 5</td></tr>`).join('');
+
+document.getElementById("severityCards").innerHTML = severity.length
+  ? severity.map(p => `
+    <div class="severity-card">
+      <div class="severity-title">Respondent ${p.row}</div>
+      <div class="severity-score">5.00 / 5</div>
+      <div class="severity-meta">
+        Age: ${p.age ?? "Unknown"}<br>
+        Occupation: ${p.occupation}<br>
+        Relationship: ${p.relationship}<br>
+        Platforms: ${p.platforms || "None listed"}<br>
+        Daily time: ${p.time || "Unknown"}
+      </div>
+    </div>
+  `).join("")
+  : `
+    <div class="severity-card">
+      <div class="severity-title">No perfect 5/5 average</div>
+      <div class="severity-score">0</div>
+      <div class="severity-meta">
+        No respondent averaged exactly 5/5 across all questions 9–20.
+      </div>
+    </div>
+  `;
+
+function personCard(title, p) {
+  return `
+    <div class="person-card" data-age="${p.age}">
+      <div class="person-title">${title}</div>
+      <div class="person-meta">${p.age} years old · ${p.gender} · ${p.relationship}</div>
+      <div class="person-detail">
+        Occupation: ${p.occupation}<br>
+        Affiliation: ${p.affiliation}<br>
+        Uses social media: ${p.usesSocial}<br>
+        Platforms: ${p.platforms || "None listed"}<br>
+        Daily time: ${p.time || "Unknown"}<br>
+        Mean mental-health score: ${p.meanScore ?? "—"} / 5
+      </div>
+    </div>
+  `;
+}
+
+document.getElementById("ageExtremeCards").innerHTML =
+  personCard("Youngest respondent", D.outliers.youngest) +
+  personCard("Oldest respondent", D.outliers.oldest);
+
+/* -----------------------------
+   SECTION 06: NON-USERS
+----------------------------- */
+document.getElementById("nonUserIntro").innerHTML = `
+  These respondents should be interpreted as a tiny separate group, not as a comparison against all social media users.
+  The sample contains only <strong>${D.nonUsers.n}</strong> non-users, so this is descriptive rather than conclusive.
+`;
+
+new Chart(document.getElementById("nonUserChart"), {
+  type: "bar",
+  data: {
+    labels: D.nonUsers.scores.map(x => x.question),
+    datasets: [{
+      data: D.nonUsers.scores.map(x => x.score),
+      backgroundColor: "#E8472Abb",
+      borderColor: "#E8472A",
+      borderWidth: 1
+    }]
+  },
+  options: {
+    indexAxis: "y",
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: c => `${c.parsed.x ?? "NA"} / 5`,
+          afterLabel: c => D.nonUsers.scores[c.dataIndex].full
+        }
+      }
+    },
+    scales: {
+      x: {
+        min: 1,
+        max: 5,
+        title: { display: true, text: "Average score among non-users only" }
+      },
+      y: {
+        grid: { display: false },
+        title: { display: true, text: "Mental-health question" }
+      }
+    }
+  }
+});
+
+document.getElementById("nonUserTable").innerHTML =
+  `<tr>
+    <th>Row</th>
+    <th>Age</th>
+    <th>Gender</th>
+    <th>Occupation</th>
+    <th>Relationship</th>
+    <th>Mean score</th>
+  </tr>` +
+  D.nonUsers.people.map(p => `
+    <tr>
+      <td>${p.row}</td>
+      <td>${p.age}</td>
+      <td>${p.gender}</td>
+      <td>${p.occupation}</td>
+      <td>${p.relationship}</td>
+      <td>${p.meanScore ?? "—"} / 5</td>
+    </tr>
+  `).join("");
 </script>
+
 </body>
 </html>

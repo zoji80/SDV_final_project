@@ -138,7 +138,7 @@
         gap: 30px;
         align-items: stretch;
         height: 630px; /* Locks the height to perfectly match the chart card */
-        margin-bottom: 30px;
+        margin-bottom: 60px;
       }
 
       .controls-panel {
@@ -385,6 +385,10 @@
         ); /* Change arrow color to bottom side */
       }
 
+      .insight-box b {
+        font-weight: 700 !important;
+      }
+
       .tooltip-content ul {
         list-style: none;
         padding: 0;
@@ -411,21 +415,78 @@
       }
 
       .insight-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 30px;
-        border-radius: 16px;
-        margin-top: 60px;
+        background: white;
+        color: var(--dark);
+        border-radius: 12px;
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .insight-box:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .insight-box.attention {
+        border-left: 5px solid #3498db;
+      }
+
+      .insight-box.emotional {
+        border-left: 5px solid #e74c3c;
+      }
+
+      .insight-box.social {
+        border-left: 5px solid #f39c12;
+      }
+
+      .insight-box.behavioral {
+        border-left: 5px solid #9b59b6;
+      }
+
+      .insight-header {
+        padding: 20px 30px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+      }
+
+      .insight-header:hover {
+        background: rgba(0, 0, 0, 0.02);
       }
 
       .insight-box h3 {
-        font-size: 1.3em;
-        margin-bottom: 15px;
+        font-size: 1.2em;
+        margin: 0;
+        font-weight: 600;
+      }
+
+      .insight-toggle {
+        font-size: 1.5em;
+        transition: transform 0.3s ease;
+        color: var(--muted);
+      }
+
+      .insight-box.open .insight-toggle {
+        transform: rotate(180deg);
+      }
+
+      .insight-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .insight-box.open .insight-content {
+        max-height: 500px;
       }
 
       .insight-box p {
+        padding: 0 30px 25px 30px;
         line-height: 1.7;
-        opacity: 0.95;
+        margin: 0;
       }
 
       @media (max-width: 768px) {
@@ -860,15 +921,78 @@
         </aside>
       </div>
 
-      <div class="insight-box">
-        <h3>📊 Key Findings</h3>
-        <p>
-          <!-- The data reveals a clear correlation between increased screen time and
-          mental health challenges across all four dimensions. Users reporting
-          more than 5 hours of daily social media use show significantly higher
-          scores for attention problems, emotional distress, social validation
-          seeking, and behavioral dependence patterns. -->
-        </p>
+      <div class="insight-box attention">
+        <div class="insight-header">
+          <h3>Stress increased</h3>
+          <span class="insight-toggle">▼</span>
+        </div>
+        <div class="insight-content">
+          <p>
+            We can conclude that there is clearly a
+            <b> very strong correlation</b> between increased screen time and
+            negative impacts on mental health. Whether it is
+            <b> sleep issues </b>, <b>restlessness</b> or
+            <b> emotional distress</b>, the data consistently shows that users
+            who report spending more than 5 hours daily on social media
+            experience significantly higher levels of mental health challenges.
+            <br />
+            This includes increased attention problems, heightened emotional
+            distress and stronger behavioral dependence habits.
+          </p>
+        </div>
+      </div>
+      <div class="insight-box emotional">
+        <div class="insight-header">
+          <h3>Anxious?</h3>
+          <span class="insight-toggle">▼</span>
+        </div>
+        <div class="insight-content">
+          <p>
+            We can conclude that long screen time can be contributed to
+            decreased emotional wellbeing. Users who spend more time on social
+            media report higher levels of anxiety and worry. However, there's a
+            slight decrease between users who spend <b>3-5 hours</b> (3.90) and
+            users who spend <b>4-5 hours</b> (3.69).
+          </p>
+        </div>
+      </div>
+
+      <div class="insight-box social">
+        <div class="insight-header">
+          <h3>Seeking validation?</h3>
+          <span class="insight-toggle">▼</span>
+        </div>
+        <div class="insight-content">
+          <p>
+            <b>Interestingly, </b> the social validation group suggests increase
+            with longer screentime, but this difference is much less pronounced
+            compared to the other metrics. For comparison the attention metric
+            experiences a jump from <b>2.01</b> to <b>3.82</b>, while social
+            validation only increases from <b>2.27</b> to <b>2.85</b>. This
+            could suggest that while social media may contribute to feelings of
+            comparison and validation seeking, these effects might not escalate
+            as dramatically with increased usage as issues regarding shortened
+            attention span.
+          </p>
+        </div>
+      </div>
+
+      <div class="insight-box behavioral">
+        <div class="insight-header">
+          <h3>Dependent?</h3>
+          <span class="insight-toggle">▼</span>
+        </div>
+        <div class="insight-content">
+          <p>
+            After <b>Attention & Distraction</b> and
+            <b>Behavioral Dependence</b> experience the largest increase with
+            longer screentime. This suggests that users who spend more time on
+            social media are not only more likely to experience attention
+            problems but also develop stronger behavioral dependence on these
+            platforms. Key factors of this metric is respondents reporting
+            restlessness and sleep issues.
+          </p>
+        </div>
       </div>
 
       <a href="01_a_intro.html#story-section" class="back-btn"
@@ -1372,6 +1496,14 @@
         if (checkbox && checkbox.checked) {
           item.classList.add("active");
         }
+      });
+
+      // Insight box toggle functionality
+      document.querySelectorAll(".insight-header").forEach((header) => {
+        header.addEventListener("click", () => {
+          const box = header.closest(".insight-box");
+          box.classList.toggle("open");
+        });
       });
     </script>
   </body>

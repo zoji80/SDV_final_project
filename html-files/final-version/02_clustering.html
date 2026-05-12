@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Personas - Social Media User Analysis</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #f5f1e8;
+        --text: #2a2a2a;
+        --accent: #4a4a4a;
+        --doomscroller: #c85a54;
+        --insecure: #e8964f;
+        --distracted: #a98bc4;
+        --anxious: #d89bb8;
+        --regular: #8fb569;
+        --professional: #5b9a6f;
+        --offgrid: #7a7a7a;
+        --casual: #6ba3c4;
+      }
+
+      body {
+        font-family: "Crimson Pro", serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      #container {
+        width: 100%;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 2rem 3rem;
+        background: linear-gradient(
+          180deg,
+          var(--bg) 0%,
+          rgba(245, 241, 232, 0.95) 70%,
+          transparent 100%
+        );
+        z-index: 100;
+        pointer-events: none;
+      }
+
+      h1 {
+        font-family: "Space Mono", monospace;
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--accent);
+        font-weight: 300;
+      }
+
+      #reveal-button {
+        position: fixed;
+        bottom: 3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1.2rem 3rem;
+        background: var(--text);
+        color: var(--bg);
+        border: none;
+        font-family: "Space Mono", monospace;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        z-index: 150;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        pointer-events: all;
+      }
+
+      #reveal-button:hover {
+        transform: translateX(-50%) translateY(-2px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+      }
+
+      #reveal-button.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #svg-container {
+        width: 100%;
+        height: 100vh;
+        position: relative;
+      }
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .dot {
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        stroke: rgba(0, 0, 0, 0.1);
+        stroke-width: 0.5;
+      }
+
+      .dot:hover {
+        stroke: var(--text);
+        stroke-width: 2;
+        filter: brightness(1.2);
+      }
+
+      #filters {
+        position: fixed;
+        right: -400px;
+        top: 0;
+        width: 380px;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.98);
+        padding: 2rem;
+        overflow-y: auto;
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 200;
+      }
+
+      #filters.visible {
+        right: 0;
+      }
+
+      .filter-section {
+        margin-bottom: 2rem;
+      }
+
+      .filter-section h3 {
+        font-family: "Space Mono", monospace;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+        color: var(--accent);
+      }
+
+      .filter-option {
+        margin: 0.5rem 0;
+      }
+
+      .filter-option label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0.5rem 0;
+      }
+
+      .filter-option input[type="checkbox"] {
+        margin-right: 0.8rem;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      input[type="number"] {
+        width: 70px;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        font-family: "Crimson Pro", serif;
+        font-size: 1rem;
+      }
+
+      .age-inputs {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-top: 0.8rem;
+      }
+
+      .age-inputs label {
+        font-size: 0.95rem;
+      }
+
+      #legend {
+        position: fixed;
+        left: 3rem;
+        bottom: 7rem;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+      }
+
+      #legend.visible {
+        opacity: 1;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 0.8rem 0;
+        font-family: "Space Mono", monospace;
+        font-size: 0.85rem;
+      }
+
+      .legend-color {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 0.8rem;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+      }
+
+      .legend-count {
+        margin-left: 0.5rem;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      #tooltip {
+        position: fixed;
+        background: white;
+        padding: 1.2rem;
+        border-radius: 4px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 1000;
+        max-width: 3200px;
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      #tooltip.visible {
+        opacity: 1;
+      }
+
+      .tooltip-title {
+        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--text);
+      }
+
+      .tooltip-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 0.4rem 0;
+      }
+
+      .tooltip-label {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      #persona-info {
+        position: fixed;
+        bottom: 3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        max-width: 600px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 150;
+      }
+
+      #persona-info.visible {
+        opacity: 1;
+      }
+
+      #persona-info h4 {
+        font-family: "Space Mono", monospace;
+        font-size: 1.1rem;
+        margin-bottom: 0.8rem;
+      }
+
+      #persona-info p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--accent);
+      }
+
+      .reset-button {
+        margin-top: 1.5rem;
+        padding: 0.8rem 1.5rem;
+        background: var(--text);
+        color: var(--bg);
+        border: none;
+        font-family: "Space Mono", monospace;
+        font-size: 0.9rem;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+      }
+
+      .reset-button:hover {
+        background: var(--accent);
+      }
+
+      .close-filters {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--accent);
+        padding: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        header {
+          padding: 1.5rem;
+        }
+
+        h1 {
+          font-size: 1.3rem;
+        }
+
+        .subtitle {
+          font-size: 0.95rem;
+        }
+
+        #filters {
+          width: 100%;
+          right: -100%;
+        }
+
+        #legend {
+          left: 1.5rem;
+          bottom: 1.5rem;
+          font-size: 0.75rem;
+        }
+
+        #reveal-button {
+          bottom: 1.5rem;
+          padding: 1rem 2rem;
+          font-size: 1rem;
+        }
+      }
+
+      .loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: "Space Mono", monospace;
+        font-size: 1.2rem;
+        z-index: 300;
+      }
+
+      /* BACK BUTTON */
+      .back-btn {
+        position: fixed;
+        bottom: 3rem;
+        left: 3rem;
+        z-index: 250;
+        background: var(--text);
+        color: var(--bg);
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 4px;
+        font-family: "Space Mono", monospace;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      }
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+        background: var(--accent);
+      }
+      .back-btn::before {
+        content: "← ";
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <header>
+        <h1>Digital Personas</h1>
+        <p class="subtitle">Exploring social media user behavior patterns</p>
+      </header>
+
+      <div id="svg-container"></div>
+
+      <button id="reveal-button">Reveal Personas</button>
+
+      <div id="legend"></div>
+
+      <div id="filters">
+        <button class="close-filters" onclick="toggleFilters()">✕</button>
+
+        <div class="filter-section">
+          <h3>Age Range</h3>
+          <div class="age-inputs">
+            <label
+              >From:
+              <input type="number" id="age-min" value="18" min="10" max="100"
+            /></label>
+            <label
+              >To:
+              <input type="number" id="age-max" value="100" min="10" max="100"
+            /></label>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h3>Gender</h3>
+          <div id="gender-filters"></div>
+        </div>
+
+        <div class="filter-section">
+          <h3>Marital Status</h3>
+          <div id="marital-filters"></div>
+        </div>
+
+        <div class="filter-section">
+          <h3>Occupation</h3>
+          <div id="occupation-filters"></div>
+        </div>
+
+        <button class="reset-button" onclick="resetFilters()">
+          Reset All Filters
+        </button>
+      </div>
+
+      <div id="tooltip"></div>
+      <div id="persona-info"></div>
+    </div>
+
+    <div class="loading" id="loading">Loading data...</div>
+
+    <script>
+      // Persona definitions based on the categorization logic
+      const personaDescriptions = {
+        "The Doomscroller":
+          "High usage time (4-5+ hours) with aimless scrolling behavior (score ≥4). Feel restless without social media (score ≥4). Characteristic pattern of compulsive, purposeless engagement.",
+        "The Anxious":
+          "Highly bothered by worries (score ≥4) AND frequently depressed or down (score ≥4). Social media use correlates with heightened anxiety and negative emotional states.",
+        "The Distracted":
+          "Easily distracted (score ≥4) AND difficulty concentrating (score ≥4). Social media fragments their attention and impairs focus on tasks.",
+        "The Insecure":
+          "Seek validation through social media features (score ≥4) OR frequently compare themselves to others (score ≥4). Use social media as a measure of self-worth.",
+        Professional:
+          "Rarely distracted by social media when busy (score ≤2) AND don't feel restless without it (score ≤2). Maintain disciplined, intentional usage patterns.",
+        "Regular User":
+          "Low to moderate usage time (< 2 hours) with low worry levels (score ≤3). Healthy, balanced relationship with social media.",
+        "Casual Surfer":
+          "Moderate usage patterns (2-4 hours) OR sometimes browse without purpose (score ≥3). Neither highly engaged nor strictly disciplined.",
+        "Off-grid":
+          "Do not use social media at all. Complete abstention from social media platforms.",
+        Uncategorized:
+          "Do not fit into any of the above personas. Unique or mixed usage patterns that don't align with defined categories.",
+      };
+
+      const personaColors = {
+        "The Doomscroller": "#c85a54",
+        "The Insecure": "#e8964f",
+        "The Distracted": "#a98bc4",
+        "The Anxious": "#d89bb8",
+        "Regular User": "#8fb569",
+        Professional: "#5b9a6f",
+        "Off-grid": "#7a7a7a",
+        "Casual Surfer": "#6ba3c4",
+        Uncategorized: "#cccccc",
+      };
+
+      let data = [];
+      let filteredData = [];
+      let isRevealed = false;
+      let svg, width, height;
+
+      // Normalize gender categories
+      function normalizeGender(gender) {
+        if (!gender) return "Other";
+        const g = gender.trim().toLowerCase();
+        if (g === "male") return "Male";
+        if (g === "female") return "Female";
+        if (g.includes("binary") || g === "nb") return "Non-binary";
+        return "Other";
+      }
+
+      // Load and process data
+      Papa.parse("../../data/smmh_with_personas.csv", {
+        download: true,
+        header: true,
+        complete: function (results) {
+          data = results.data.filter(
+            (d) => d["Digital Persona"] && d["1. What is your age?"],
+          );
+          data.forEach((d) => {
+            d.normalizedGender = normalizeGender(d["2. Gender"]);
+            d.age = parseInt(d["1. What is your age?"]);
+          });
+
+          filteredData = [...data];
+          document.getElementById("loading").style.display = "none";
+          initVisualization();
+          setupFilters();
+        },
+        error: function (error) {
+          console.error("Error loading data:", error);
+          document.getElementById("loading").innerHTML =
+            "Error loading data. Please check the file path.";
+        },
+      });
+
+      function initVisualization() {
+        const container = document.getElementById("svg-container");
+        width = container.clientWidth;
+        height = container.clientHeight;
+
+        svg = d3
+          .select("#svg-container")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        drawDots();
+        setupRevealButton();
+      }
+
+      function drawDots() {
+        const dots = svg.selectAll(".dot").data(filteredData, (d, i) => i);
+
+        // Exit
+        dots.exit().transition().duration(500).attr("r", 0).remove();
+
+        // Enter
+        const dotsEnter = dots
+          .enter()
+          .append("circle")
+          .attr("class", "dot")
+          .attr("r", 0)
+          .attr("cx", (d) => Math.random() * width)
+          .attr("cy", (d) => Math.random() * height)
+          .attr("fill", "#b8b8b8");
+
+        // Enter + Update
+        dots
+          .merge(dotsEnter)
+          .on("mouseenter", showTooltip)
+          .on("mousemove", moveTooltip)
+          .on("mouseleave", hideTooltip)
+          .on("click", showPersonaInfo)
+          .transition()
+          .duration(800)
+          .delay((d, i) => i * 2)
+          .attr("r", 6)
+          .attr("cx", (d) =>
+            isRevealed ? getClusteredX(d) : d.randomX || Math.random() * width,
+          )
+          .attr("cy", (d) =>
+            isRevealed ? getClusteredY(d) : d.randomY || Math.random() * height,
+          )
+          .attr("fill", (d) =>
+            isRevealed ? personaColors[d["Digital Persona"]] : "#b8b8b8",
+          );
+      }
+
+      function getClusteredX(d) {
+        const personas = Object.keys(personaColors);
+        const index = personas.indexOf(d["Digital Persona"]);
+        const cols = 3;
+        const col = index % cols;
+        // Reduce the effective width to keep dots away from right sidebar
+        const effectiveWidth = width * 0.75; // Use 75% of width
+        const spacing = effectiveWidth / (cols + 1);
+        const jitter = (Math.random() - 0.5) * 80;
+        const offset = width * 0.05; // 5% left offset
+        return offset + spacing * (col + 1) + jitter;
+      }
+
+      function getClusteredY(d) {
+        const personas = Object.keys(personaColors);
+        const index = personas.indexOf(d["Digital Persona"]);
+        const cols = 3;
+        const row = Math.floor(index / cols);
+        const spacing = height / 4;
+        const jitter = (Math.random() - 0.5) * 80;
+        return spacing * (row + 1.5) + jitter;
+      }
+
+      function setupRevealButton() {
+        const button = document.getElementById("reveal-button");
+        button.addEventListener("click", () => {
+          isRevealed = true;
+          button.classList.add("hidden");
+
+          // Store random positions
+          filteredData.forEach((d) => {
+            if (!d.randomX) {
+              d.randomX = Math.random() * width;
+              d.randomY = Math.random() * height;
+            }
+          });
+
+          drawDots();
+
+          setTimeout(() => {
+            document.getElementById("legend").classList.add("visible");
+            document.getElementById("filters").classList.add("visible");
+            updateLegend();
+          }, 3000);
+        });
+      }
+
+      function updateLegend() {
+        const personaCounts = {};
+        filteredData.forEach((d) => {
+          const persona = d["Digital Persona"];
+          personaCounts[persona] = (personaCounts[persona] || 0) + 1;
+        });
+
+        const legend = document.getElementById("legend");
+        legend.innerHTML = Object.keys(personaColors)
+          .map((persona) => {
+            const count = personaCounts[persona] || 0;
+            return `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: ${personaColors[persona]}"></div>
+                        <span>${persona}</span>
+                        <span class="legend-count">${count}</span>
+                    </div>
+                `;
+          })
+          .join("");
+      }
+
+      function setupFilters() {
+        // Gender filters
+        const genders = ["Male", "Female", "Non-binary", "Other"];
+        const genderContainer = document.getElementById("gender-filters");
+        genderContainer.innerHTML = genders
+          .map(
+            (g) => `
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" class="gender-filter" value="${g}" checked>
+                        ${g}
+                    </label>
+                </div>
+            `,
+          )
+          .join("");
+
+        // Marital status filters
+        const maritalStatuses = [
+          "In a relationship",
+          "Single",
+          "Married",
+          "Divorced",
+        ];
+        const maritalContainer = document.getElementById("marital-filters");
+        maritalContainer.innerHTML = maritalStatuses
+          .map(
+            (m) => `
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" class="marital-filter" value="${m}" checked>
+                        ${m}
+                    </label>
+                </div>
+            `,
+          )
+          .join("");
+
+        // Occupation filters
+        const occupations = [
+          "University Student",
+          "School Student",
+          "Salaried Worker",
+          "Retired",
+        ];
+        const occupationContainer =
+          document.getElementById("occupation-filters");
+        occupationContainer.innerHTML = occupations
+          .map(
+            (o) => `
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" class="occupation-filter" value="${o}" checked>
+                        ${o}
+                    </label>
+                </div>
+            `,
+          )
+          .join("");
+
+        // Add event listeners
+        document
+          .querySelectorAll(
+            ".gender-filter, .marital-filter, .occupation-filter",
+          )
+          .forEach((input) => {
+            input.addEventListener("change", applyFilters);
+          });
+
+        document
+          .getElementById("age-min")
+          .addEventListener("input", applyFilters);
+        document
+          .getElementById("age-max")
+          .addEventListener("input", applyFilters);
+      }
+
+      function applyFilters() {
+        const ageMin = parseInt(document.getElementById("age-min").value) || 0;
+        const ageMax =
+          parseInt(document.getElementById("age-max").value) || 999;
+
+        const selectedGenders = Array.from(
+          document.querySelectorAll(".gender-filter:checked"),
+        ).map((c) => c.value);
+        const selectedMarital = Array.from(
+          document.querySelectorAll(".marital-filter:checked"),
+        ).map((c) => c.value);
+        const selectedOccupations = Array.from(
+          document.querySelectorAll(".occupation-filter:checked"),
+        ).map((c) => c.value);
+
+        filteredData = data.filter((d) => {
+          return (
+            d.age >= ageMin &&
+            d.age <= ageMax &&
+            selectedGenders.includes(d.normalizedGender) &&
+            selectedMarital.includes(d["3. Relationship Status"]) &&
+            selectedOccupations.includes(d["4. Occupation Status"])
+          );
+        });
+
+        drawDots();
+        if (isRevealed) {
+          updateLegend();
+        }
+      }
+
+      function resetFilters() {
+        document.getElementById("age-min").value = 18;
+        document.getElementById("age-max").value = 100;
+        document
+          .querySelectorAll(
+            ".gender-filter, .marital-filter, .occupation-filter",
+          )
+          .forEach((input) => {
+            input.checked = true;
+          });
+        applyFilters();
+      }
+
+      function toggleFilters() {
+        document.getElementById("filters").classList.toggle("visible");
+      }
+
+      function showTooltip(event, d) {
+        const tooltip = document.getElementById("tooltip");
+        tooltip.innerHTML = `
+                <div class="tooltip-title">${d["Digital Persona"]}</div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Age: </span>
+                    <span>${d.age}</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Gender: </span>
+                    <span>${d.normalizedGender}</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Status: </span>
+                    <span>${d["3. Relationship Status"]}</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Occupation: </span>
+                    <span>${d["4. Occupation Status"]}</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Daily Use: </span>
+                    <span>${d["8. What is the average time you spend on social media every day?"]}</span>
+                </div>
+            `;
+        tooltip.classList.add("visible");
+        moveTooltip(event);
+      }
+
+      function moveTooltip(event) {
+        const tooltip = document.getElementById("tooltip");
+        const tooltipRect = tooltip.getBoundingClientRect();
+        tooltip.style.left = event.pageX + 15 + "px";
+        tooltip.style.top =
+          Math.max(15, event.pageY - tooltipRect.height - 15) + "px";
+      }
+
+      function hideTooltip() {
+        document.getElementById("tooltip").classList.remove("visible");
+      }
+
+      function showPersonaInfo(event, d) {
+        const info = document.getElementById("persona-info");
+        const persona = d["Digital Persona"];
+        info.innerHTML = `
+                <h4>${persona}</h4>
+                <p>${personaDescriptions[persona]}</p>
+            `;
+        info.classList.add("visible");
+      }
+
+      // Hide persona info when clicking anywhere
+      document.addEventListener("click", (event) => {
+        const info = document.getElementById("persona-info");
+        const isClickOnDot =
+          event.target.classList && event.target.classList.contains("dot");
+
+        if (info.classList.contains("visible") && !isClickOnDot) {
+          info.classList.remove("visible");
+        }
+      });
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        width = document.getElementById("svg-container").clientWidth;
+        height = document.getElementById("svg-container").clientHeight;
+        svg.attr("width", width).attr("height", height);
+        drawDots();
+      });
+    </script>
+    <a href="01_a_intro.html#story-section" class="back-btn"
+      >Back to Overview</a
+    >
+  </body>
+</html>

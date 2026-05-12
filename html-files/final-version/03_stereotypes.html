@@ -1,0 +1,1443 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Was Grandma Right?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+    <style>
+      :root {
+        --cream: #f5f0e8;
+        --dark: #1a1209;
+        --warm: #c8a96e;
+        --accent: #e8472a;
+        --muted: #6b5e4a;
+        --card: #fffdf7;
+        --border: rgba(200, 169, 110, 0.28);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--cream);
+        color: var(--dark);
+        font-family: "DM Sans", sans-serif;
+        font-weight: 300;
+        line-height: 1.7;
+        overflow-x: hidden;
+      }
+
+      .hero {
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 4rem 2rem;
+        position: relative;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 39px,
+            rgba(200, 169, 110, 0.11) 39px,
+            rgba(200, 169, 110, 0.11) 40px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 39px,
+            rgba(200, 169, 110, 0.11) 39px,
+            rgba(200, 169, 110, 0.11) 40px
+          );
+        pointer-events: none;
+      }
+
+      .eyebrow {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 2rem;
+        position: relative;
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(3rem, 8vw, 7rem);
+        font-weight: 900;
+        line-height: 1;
+        max-width: 950px;
+        position: relative;
+      }
+
+      h1 em {
+        color: var(--accent);
+      }
+
+      .hero-sub {
+        max-width: 560px;
+        color: var(--muted);
+        margin-top: 1.75rem;
+        position: relative;
+      }
+
+      section {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 5rem 2rem;
+      }
+
+      .sec-label {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--warm);
+        margin-bottom: 0.9rem;
+      }
+
+      h2 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.15;
+        margin-bottom: 0.9rem;
+      }
+
+      .lead {
+        max-width: 680px;
+        color: var(--muted);
+        margin-bottom: 2rem;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-bottom: 1.8rem;
+      }
+
+      .check {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.45rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 253, 247, 0.7);
+        cursor: pointer;
+      }
+
+      .check input {
+        margin-right: 0.35rem;
+      }
+
+      .chart-wrap {
+        position: relative;
+        height: 520px;
+      }
+
+      .word-map-card {
+        background: var(--dark);
+        color: var(--cream);
+        border-radius: 24px;
+        padding: 2.4rem;
+        border: 1px solid rgba(200, 169, 110, 0.25);
+      }
+
+      .word-map-top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 430px;
+        gap: 2rem;
+        align-items: start;
+        margin-bottom: 2rem;
+      }
+
+      .word-question {
+        max-width: 620px;
+        min-height: 150px;
+      }
+
+      .word-buttons {
+        width: 430px;
+        justify-content: flex-end;
+      }
+
+      .word-question-label {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--warm);
+        margin-bottom: 0.4rem;
+      }
+
+      .word-question-title {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        line-height: 1.1;
+      }
+
+      .word-question-full {
+        color: rgba(245, 240, 232, 0.6);
+        font-size: 0.9rem;
+        margin-top: 0.6rem;
+      }
+
+      .word-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        max-width: 430px;
+      }
+
+      .word-btn {
+        border: 1px solid rgba(200, 169, 110, 0.25);
+        background: rgba(245, 240, 232, 0.04);
+        color: rgba(245, 240, 232, 0.78);
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        border-radius: 999px;
+        padding: 0.42rem 0.7rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .word-btn:hover,
+      .word-btn.active {
+        background: var(--warm);
+        color: var(--dark);
+      }
+
+      .word-map {
+        min-height: 360px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 1.1rem 1.6rem;
+        padding: 2rem;
+        border-radius: 18px;
+        background:
+          radial-gradient(
+            circle at 20% 20%,
+            rgba(232, 71, 42, 0.12),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 80% 50%,
+            rgba(200, 169, 110, 0.12),
+            transparent 30%
+          ),
+          rgba(245, 240, 232, 0.035);
+        border: 1px solid rgba(200, 169, 110, 0.18);
+      }
+
+      .word {
+        font-family: "Playfair Display", serif;
+        font-weight: 900;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        opacity: 0;
+        animation: popIn 0.65s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+        transition:
+          transform 0.25s,
+          filter 0.25s;
+        text-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+      }
+
+      .word:hover {
+        filter: brightness(1.2);
+        transform: scale(1.08);
+      }
+
+      .word-score {
+        font-family: "DM Mono", monospace;
+        font-size: 0.65rem;
+        font-weight: 400;
+        color: rgba(245, 240, 232, 0.55);
+      }
+
+      @keyframes popIn {
+        from {
+          transform: scale(0.4) translateY(18px);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .word-legend {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+        color: rgba(245, 240, 232, 0.55);
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+      }
+
+      .word-legend strong {
+        color: var(--warm);
+        font-weight: 500;
+      }
+
+      .story-box {
+        background: var(--dark);
+        color: var(--cream);
+        border-radius: 22px;
+        padding: 3rem;
+        margin-top: 2rem;
+      }
+
+      .story-box h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .story-box p {
+        color: rgba(245, 240, 232, 0.72);
+        max-width: 760px;
+        margin-bottom: 1rem;
+      }
+
+      .verdict {
+        display: inline-block;
+        font-family: "DM Mono", monospace;
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        border-radius: 999px;
+        padding: 0.2rem 0.55rem;
+        margin-left: 0.4rem;
+      }
+
+      .v-supported {
+        background: rgba(232, 71, 42, 0.18);
+        color: #ffd9d2;
+      }
+
+      .v-partly {
+        background: rgba(200, 169, 110, 0.2);
+        color: #f5dda4;
+      }
+
+      .v-weak {
+        background: rgba(245, 240, 232, 0.12);
+        color: rgba(245, 240, 232, 0.7);
+      }
+
+      .stereo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+      }
+
+      .stereo-card {
+        background: rgba(245, 240, 232, 0.06);
+        border: 1px solid rgba(200, 169, 110, 0.18);
+        border-radius: 16px;
+        padding: 1.2rem;
+      }
+
+      .stereo-platform {
+        font-family: "Playfair Display", serif;
+        font-size: 1.35rem;
+        font-weight: 900;
+        color: var(--cream);
+      }
+
+      .stereo-claim {
+        color: rgba(245, 240, 232, 0.68);
+        font-size: 0.85rem;
+        margin: 0.4rem 0 0.8rem;
+      }
+
+      .stereo-score {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--warm);
+      }
+
+      .stereo-meta {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        color: rgba(245, 240, 232, 0.55);
+        margin-top: 0.7rem;
+        line-height: 1.6;
+      }
+
+      .reset-zoom {
+        margin-top: 1rem;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--dark);
+        border-radius: 999px;
+        padding: 0.55rem 0.9rem;
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      @media (max-width: 700px) {
+        .word-map-top {
+          grid-template-columns: 1fr;
+        }
+
+        .word-buttons {
+          width: 100%;
+          justify-content: flex-start;
+        }
+
+        .word-question {
+          min-height: auto;
+        }
+      }
+
+      .conclusion-card-dark {
+        background: var(--dark);
+        color: var(--cream);
+        border-radius: 24px;
+        padding: 2.6rem;
+        margin-top: 2rem;
+        border: 1px solid rgba(200, 169, 110, 0.25);
+        box-shadow: 0 18px 45px rgba(26, 18, 9, 0.18);
+      }
+
+      .conclusion-card-dark .conclusion-kicker {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--warm);
+        margin-bottom: 0.8rem;
+      }
+
+      .conclusion-card-dark h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 2.4rem;
+        line-height: 1.1;
+        margin-bottom: 1.2rem;
+      }
+
+      .conclusion-card-dark p {
+        color: rgba(245, 240, 232, 0.72);
+        max-width: 780px;
+        margin-bottom: 1rem;
+      }
+
+      .conclusion-card-dark strong {
+        color: var(--warm);
+        font-weight: 500;
+      }
+
+      .conclusion-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 2.4rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 12px 35px rgba(26, 18, 9, 0.06);
+      }
+
+      .conclusion-kicker {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.6rem;
+      }
+
+      .conclusion-card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 2.2rem;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+      }
+
+      .conclusion-card p {
+        color: var(--muted);
+        max-width: 760px;
+        margin-bottom: 0.8rem;
+      }
+
+      /* BACK BUTTON */
+      .back-btn {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        z-index: 1000;
+        background: var(--dark);
+        color: var(--cream);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 4px 12px rgba(26, 18, 9, 0.2);
+      }
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(26, 18, 9, 0.3);
+        background: var(--accent);
+      }
+      .back-btn::before {
+        content: "← ";
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="hero">
+      <p class="eyebrow">Social media platforms · questions 9–20</p>
+      <h1>Was <em>grandma</em> right?</h1>
+      <p class="hero-sub">
+        Choose one or more platforms and compare how users score across
+        purposeless use, distraction, worries, validation seeking, mood, and
+        sleep. Then chek out if the data support the common stereotypes! Do they
+        confirm what we all silently assumed?
+      </p>
+    </div>
+
+    <section>
+      <p class="sec-label">01 — Platform comparison</p>
+      <h2>Which platforms are linked to which feelings?</h2>
+      <p class="lead">
+        Select apps below. Each line shows the average score from 1 to 5 for
+        users of that platform. Higher means the behaviour or feeling was
+        reported more often. Choose your apps, hover over points for detail and
+        zoom in to explore!
+      </p>
+
+      <div class="card">
+        <div class="controls" id="platformControls"></div>
+        <div class="chart-wrap">
+          <canvas id="scoreChart"></canvas>
+        </div>
+        <button class="reset-zoom" onclick="scoreChart.resetZoom()">
+          Reset zoom
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <p class="sec-label">02 — Strongest platform signal</p>
+      <h2>How do they affect our feelings?</h2>
+      <p class="lead">
+        Pick a question. The platform names grow larger when their average score
+        is higher. Spoiler alert, there is one platform that stands out!
+      </p>
+
+      <div class="word-map-card">
+        <div class="word-map-top">
+          <div class="word-question">
+            <p class="word-question-label" id="wordQuestionID">Q17</p>
+            <h3 class="word-question-title" id="wordQuestionTitle">
+              Validation seeking
+            </h3>
+            <p class="word-question-full" id="wordQuestionFull"></p>
+          </div>
+
+          <div class="word-buttons" id="wordButtons"></div>
+        </div>
+
+        <div class="word-map" id="wordMap"></div>
+
+        <div class="word-legend">
+          <span><strong>Bigger</strong> = higher average score</span>
+          <span><strong>Score range</strong> = 1 to 5</span>
+          <span><strong>Ties</strong> appear at the same size</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <p class="sec-label">03 — So are they true?</p>
+      <h2>Testing the stereotypes.</h2>
+      <p class="lead">
+        We all have assumptions about different platforms. This section checks
+        whether the data actually supports them. We excluded TikTok from the
+        ranking as it dominated all questions, as seen in the section before.
+      </p>
+
+      <div class="card">
+        <div class="chart-wrap" style="height: 420px">
+          <canvas id="stereoChart"></canvas>
+        </div>
+      </div>
+
+      <div class="story-box">
+        <h3>What the data says</h3>
+        <div id="stereotypeText"></div>
+      </div>
+
+      <div class="conclusion-card-dark">
+        <p class="conclusion-kicker">Final takeaway</p>
+
+        <h3>And we have our winners</h3>
+
+        <p>
+          The data partially supports our hypothesis. After excluding TikTok, a
+          strong runner-up appeared:
+          <strong>Snapchat</strong>.
+        </p>
+
+        <p>
+          It looks like platforms where users can chat, see what friends
+          interact with, and combine public content with personal messaging may
+          be linked to higher scores across several indicators — especially the
+          feeling of not being enough.
+        </p>
+
+        <p>
+          Surprisingly, <strong>Twitter</strong> and
+          <strong>Reddit</strong> were expected to be more negative platforms,
+          linked to feeling depressed, worried, or having trouble sleeping.
+          However, both ranked lower on these questions, and Twitter was even
+          the lowest for “bothered by worries”.
+        </p>
+      </div>
+    </section>
+
+    <script>
+      const D = {
+        platforms: [
+          {
+            platform: "Instagram",
+            n: 359,
+            avgAge: 24.4,
+            occupation: {
+              "University Student": 241,
+              "Salaried Worker": 74,
+              "School Student": 40,
+              Retired: 4,
+            },
+            scores: {
+              Q9: 3.64,
+              Q10: 3.48,
+              Q11: 2.67,
+              Q12: 3.48,
+              Q13: 3.75,
+              Q14: 3.39,
+              Q15: 2.93,
+              Q16: 2.75,
+              Q17: 2.54,
+              Q18: 3.4,
+              Q19: 3.28,
+              Q20: 3.3,
+            },
+          },
+          {
+            platform: "Facebook",
+            n: 407,
+            avgAge: 26.1,
+            occupation: {
+              "University Student": 262,
+              "Salaried Worker": 108,
+              "School Student": 30,
+              Retired: 7,
+            },
+            scores: {
+              Q9: 3.58,
+              Q10: 3.4,
+              Q11: 2.64,
+              Q12: 3.36,
+              Q13: 3.61,
+              Q14: 3.28,
+              Q15: 2.92,
+              Q16: 2.74,
+              Q17: 2.53,
+              Q18: 3.31,
+              Q19: 3.17,
+              Q20: 3.25,
+            },
+          },
+          {
+            platform: "Twitter",
+            n: 131,
+            avgAge: 26.9,
+            occupation: {
+              "University Student": 83,
+              "Salaried Worker": 38,
+              "School Student": 9,
+              Retired: 1,
+            },
+            scores: {
+              Q9: 3.54,
+              Q10: 3.18,
+              Q11: 2.55,
+              Q12: 3.34,
+              Q13: 3.68,
+              Q14: 3.16,
+              Q15: 2.66,
+              Q16: 2.75,
+              Q17: 2.31,
+              Q18: 3.25,
+              Q19: 2.97,
+              Q20: 3.21,
+            },
+          },
+          {
+            platform: "YouTube",
+            n: 412,
+            avgAge: 25.9,
+            occupation: {
+              "University Student": 258,
+              "Salaried Worker": 105,
+              "School Student": 41,
+              Retired: 8,
+            },
+            scores: {
+              Q9: 3.59,
+              Q10: 3.34,
+              Q11: 2.59,
+              Q12: 3.35,
+              Q13: 3.6,
+              Q14: 3.24,
+              Q15: 2.85,
+              Q16: 2.78,
+              Q17: 2.46,
+              Q18: 3.28,
+              Q19: 3.18,
+              Q20: 3.22,
+            },
+          },
+          {
+            platform: "Discord",
+            n: 198,
+            avgAge: 22.8,
+            occupation: {
+              "University Student": 142,
+              "School Student": 29,
+              "Salaried Worker": 26,
+              Retired: 1,
+            },
+            scores: {
+              Q9: 3.67,
+              Q10: 3.43,
+              Q11: 2.55,
+              Q12: 3.48,
+              Q13: 3.75,
+              Q14: 3.4,
+              Q15: 2.79,
+              Q16: 2.85,
+              Q17: 2.38,
+              Q18: 3.41,
+              Q19: 3.18,
+              Q20: 3.4,
+            },
+          },
+          {
+            platform: "Pinterest",
+            n: 145,
+            avgAge: 24.6,
+            occupation: {
+              "University Student": 91,
+              "Salaried Worker": 31,
+              "School Student": 21,
+              Retired: 2,
+            },
+            scores: {
+              Q9: 3.62,
+              Q10: 3.36,
+              Q11: 2.57,
+              Q12: 3.35,
+              Q13: 3.72,
+              Q14: 3.17,
+              Q15: 2.85,
+              Q16: 2.79,
+              Q17: 2.5,
+              Q18: 3.39,
+              Q19: 3.2,
+              Q20: 3.41,
+            },
+          },
+          {
+            platform: "TikTok",
+            n: 94,
+            avgAge: 23.7,
+            occupation: {
+              "University Student": 64,
+              "Salaried Worker": 16,
+              "School Student": 13,
+              Retired: 1,
+            },
+            scores: {
+              Q9: 3.84,
+              Q10: 3.78,
+              Q11: 3.02,
+              Q12: 3.8,
+              Q13: 4.03,
+              Q14: 3.66,
+              Q15: 3.4,
+              Q16: 2.81,
+              Q17: 2.82,
+              Q18: 3.72,
+              Q19: 3.55,
+              Q20: 3.57,
+            },
+          },
+          {
+            platform: "Snapchat",
+            n: 181,
+            avgAge: 22.8,
+            occupation: {
+              "University Student": 145,
+              "Salaried Worker": 21,
+              "School Student": 15,
+            },
+            scores: {
+              Q9: 3.72,
+              Q10: 3.6,
+              Q11: 2.78,
+              Q12: 3.61,
+              Q13: 3.84,
+              Q14: 3.51,
+              Q15: 3.04,
+              Q16: 2.64,
+              Q17: 2.59,
+              Q18: 3.58,
+              Q19: 3.39,
+              Q20: 3.46,
+            },
+          },
+          {
+            platform: "Reddit",
+            n: 126,
+            avgAge: 23.6,
+            occupation: {
+              "University Student": 77,
+              "Salaried Worker": 28,
+              "School Student": 20,
+              Retired: 1,
+            },
+            scores: {
+              Q9: 3.68,
+              Q10: 3.2,
+              Q11: 2.38,
+              Q12: 3.43,
+              Q13: 3.73,
+              Q14: 3.3,
+              Q15: 2.6,
+              Q16: 2.76,
+              Q17: 2.18,
+              Q18: 3.32,
+              Q19: 3.14,
+              Q20: 3.23,
+            },
+          },
+        ],
+        questions: [
+          {
+            id: "Q9",
+            short: "Purposeless use",
+            full: "9. How often do you find yourself using Social media without a specific purpose?",
+          },
+          {
+            id: "Q10",
+            short: "Distracted while busy",
+            full: "10. How often do you get distracted by Social media when you are busy doing something?",
+          },
+          {
+            id: "Q11",
+            short: "Restless offline",
+            full: "11. Do you feel restless if you haven't used Social media in a while?",
+          },
+          {
+            id: "Q12",
+            short: "Easily distracted",
+            full: "12. On a scale of 1 to 5, how easily distracted are you?",
+          },
+          {
+            id: "Q13",
+            short: "Bothered by worries",
+            full: "13. On a scale of 1 to 5, how much are you bothered by worries?",
+          },
+          {
+            id: "Q14",
+            short: "Concentration issues",
+            full: "14. Do you find it difficult to concentrate on things?",
+          },
+          {
+            id: "Q15",
+            short: "Social comparison",
+            full: "15. On a scale of 1-5, how often do you compare yourself to other successful people through the use of social media?",
+          },
+          {
+            id: "Q16",
+            short: "Feeling after comparison",
+            full: "16. Following the previous question, how do you feel about these comparisons, generally speaking?",
+          },
+          {
+            id: "Q17",
+            short: "Validation seeking",
+            full: "17. How often do you look to seek validation from features of social media?",
+          },
+          {
+            id: "Q18",
+            short: "Feeling down",
+            full: "18. How often do you feel depressed or down?",
+          },
+          {
+            id: "Q19",
+            short: "Interest fluctuation",
+            full: "19. On a scale of 1 to 5, how frequently does your interest in daily activities fluctuate?",
+          },
+          {
+            id: "Q20",
+            short: "Sleep issues",
+            full: "20. On a scale of 1 to 5, how often do you face issues regarding sleep?",
+          },
+        ],
+      };
+
+      const QUESTION_COLORS = {
+        Q9: "#E8472A",
+        Q10: "#C8A96E",
+        Q11: "#534AB7",
+        Q12: "#185FA5",
+        Q13: "#D4537E",
+        Q14: "#3B6D11",
+        Q15: "#BA7517",
+        Q16: "#888780",
+        Q17: "#0F6E56",
+        Q18: "#A64253",
+        Q19: "#6F4E37",
+        Q20: "#2F4858",
+      };
+
+      const PLATFORM_COLORS = [
+        "#E8472A",
+        "#C8A96E",
+        "#534AB7",
+        "#185FA5",
+        "#D4537E",
+        "#3B6D11",
+        "#BA7517",
+        "#888780",
+        "#0F6E56",
+        "#A64253",
+      ];
+
+      Chart.defaults.font.family = "'DM Mono', monospace";
+      Chart.defaults.color = "#6B5E4A";
+
+      const qIDs = D.questions.map((q) => q.id);
+      const qLabels = D.questions.map((q) => q.short);
+
+      /* -----------------------------
+   SECTION 01: LINE CHART
+----------------------------- */
+      const platformControls = document.getElementById("platformControls");
+
+      D.platforms.forEach((p) => {
+        const checked = ["Instagram"].includes(p.platform) ? "checked" : "";
+
+        platformControls.innerHTML += `
+    <label class="check">
+      <input type="checkbox" value="${p.platform}" ${checked} onchange="updateChart()">
+      ${p.platform}
+    </label>
+  `;
+      });
+
+      const scoreChart = new Chart(document.getElementById("scoreChart"), {
+        type: "line",
+        data: {
+          labels: qLabels,
+          datasets: [],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "nearest",
+            intersect: false,
+          },
+          plugins: {
+            legend: {
+              position: "bottom",
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0].dataIndex;
+                  return D.questions[idx].id + " — " + D.questions[idx].short;
+                },
+                afterTitle: (items) => {
+                  const idx = items[0].dataIndex;
+                  return D.questions[idx].full;
+                },
+                label: (item) =>
+                  `${item.dataset.label}: ${item.parsed.y.toFixed(2)} / 5`,
+              },
+            },
+            zoom: {
+              limits: {
+                y: {
+                  min: 1,
+                  max: 5,
+                  minRange: 0.5,
+                },
+                x: {
+                  min: 0,
+                  max: qLabels.length - 1,
+                  minRange: 2,
+                },
+              },
+              pan: {
+                enabled: true,
+                mode: "xy",
+                modifierKey: "shift",
+              },
+              zoom: {
+                wheel: {
+                  enabled: true,
+                  modifierKey: "ctrl",
+                },
+                pinch: {
+                  enabled: true,
+                },
+                drag: {
+                  enabled: true,
+                  backgroundColor: "rgba(232,71,42,0.12)",
+                  borderColor: "rgba(232,71,42,0.45)",
+                  borderWidth: 1,
+                },
+                mode: "xy",
+              },
+            },
+          },
+          scales: {
+            y: {
+              min: 1,
+              max: 5,
+              ticks: {
+                callback: (value) => value + "/5",
+              },
+              grid: {
+                color: "rgba(200,169,110,0.15)",
+              },
+            },
+            x: {
+              min: 0,
+              max: qLabels.length - 1,
+              ticks: {
+                maxRotation: 55,
+                minRotation: 35,
+                color: (ctx) => QUESTION_COLORS[qIDs[ctx.index]],
+              },
+              grid: {
+                display: false,
+              },
+            },
+          },
+        },
+      });
+
+      function updateChart() {
+        const selected = [
+          ...document.querySelectorAll("#platformControls input:checked"),
+        ].map((x) => x.value);
+
+        scoreChart.data.datasets = D.platforms
+          .filter((p) => selected.includes(p.platform))
+          .map((p) => {
+            const col =
+              PLATFORM_COLORS[
+                D.platforms.findIndex((x) => x.platform === p.platform) %
+                  PLATFORM_COLORS.length
+              ];
+
+            return {
+              label: `${p.platform} (n=${p.n})`,
+              data: qIDs.map((q) => p.scores[q]),
+              borderColor: col,
+              backgroundColor: col + "33",
+              pointBackgroundColor: qIDs.map((q) => QUESTION_COLORS[q]),
+              pointBorderColor: "#1A1209",
+              pointRadius: 5,
+              pointHoverRadius: 8,
+              tension: 0.25,
+              borderWidth: 2,
+            };
+          });
+
+        scoreChart.update();
+      }
+
+      /* -----------------------------
+   SECTION 02: WORD MAP
+----------------------------- */
+      const wordButtons = document.getElementById("wordButtons");
+
+      D.questions.forEach((q) => {
+        const active = q.id === "Q17" ? "active" : "";
+
+        wordButtons.innerHTML += `
+    <button class="word-btn ${active}" onclick="renderWordMap('${q.id}', this)">
+      ${q.id}
+    </button>
+  `;
+      });
+
+      function renderWordMap(qID, btn = null) {
+        if (btn) {
+          document
+            .querySelectorAll(".word-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        }
+
+        const q = D.questions.find((x) => x.id === qID);
+
+        document.getElementById("wordQuestionID").textContent = q.id;
+        document.getElementById("wordQuestionTitle").textContent = q.short;
+        document.getElementById("wordQuestionFull").textContent = q.full;
+
+        const values = D.platforms.map((p) => p.scores[qID]);
+        const minScore = Math.min(...values);
+        const maxScore = Math.max(...values);
+
+        const sorted = [...D.platforms].sort(
+          (a, b) => b.scores[qID] - a.scores[qID],
+        );
+
+        const wordMap = document.getElementById("wordMap");
+        wordMap.innerHTML = "";
+
+        sorted.forEach((p, i) => {
+          const score = p.scores[qID];
+
+          const scaled =
+            maxScore === minScore
+              ? 0.7
+              : (score - minScore) / (maxScore - minScore);
+
+          const fontSize = 1.1 + scaled * 3.4;
+          const opacity = 0.45 + scaled * 0.55;
+          const color =
+            score === maxScore
+              ? QUESTION_COLORS[qID]
+              : `rgba(245,240,232,${opacity})`;
+
+          const span = document.createElement("span");
+          span.className = "word";
+          span.style.fontSize = fontSize + "rem";
+          span.style.color = color;
+          span.style.animationDelay = i * 70 + "ms";
+          span.title = p.platform + ": " + score.toFixed(2) + " / 5";
+
+          span.innerHTML = `
+      ${p.platform}
+      <span class="word-score">${score.toFixed(2)}</span>
+    `;
+
+          wordMap.appendChild(span);
+        });
+      }
+
+      /* -----------------------------
+   SECTION 03: STEREOTYPE CHECK
+   More rigorous: each stereotype can use several questions
+----------------------------- */
+      const stereotypes = [
+        {
+          platform: "YouTube",
+          questions: ["Q20", "Q9", "Q10", "Q19"],
+          claim: "YouTube users have trouble sleeping and are distracted",
+        },
+        {
+          platform: "Instagram",
+          questions: ["Q15", "Q16", "Q17", "Q18"],
+          claim: "Instagram users compare themselves and seek validation",
+        },
+        {
+          platform: "Facebook",
+          questions: ["Q9", "Q10", "Q11"],
+          claim: "Facebook users scroll without a clear purpose",
+        },
+        {
+          platform: "Twitter",
+          questions: ["Q13", "Q18", "Q19", "Q20"],
+          claim: "Twitter users feel worried, down, or emotionally unstable",
+        },
+        {
+          platform: "TikTok",
+          questions: ["Q10", "Q12", "Q14"],
+          claim: "TikTok users are distracted and have concentration issues",
+        },
+        {
+          platform: "Snapchat",
+          questions: ["Q10", "Q14", "Q11", "Q19"],
+          claim: "Snapchat users are anxious and distracted",
+        },
+        {
+          platform: "Discord",
+          questions: ["Q9", "Q10", "Q11"],
+          claim:
+            "Discord users use social media habitually and feel restless offline",
+        },
+        {
+          platform: "Pinterest",
+          questions: ["Q15", "Q16", "Q17", "Q19"],
+          claim: "Pinterest users are affected by comparison",
+        },
+        {
+          platform: "Reddit",
+          questions: ["Q13", "Q18", "Q20"],
+          claim: "Reddit users are worried, down, or have sleep issues",
+        },
+        {
+          platform: "LinkedIn",
+          questions: ["Q15", "Q16", "Q13", "Q17"],
+          claim: "LinkedIn users compare themselves to successful people",
+        },
+      ];
+
+      function getPlatform(platformName) {
+        return D.platforms.find((p) => p.platform === platformName);
+      }
+
+      function getQuestion(qID) {
+        return D.questions.find((q) => q.id === qID);
+      }
+
+      function meanScore(platform, questions) {
+        const vals = questions.map((q) => platform.scores[q]);
+        return vals.reduce((a, b) => a + b, 0) / vals.length;
+      }
+
+      function platformsForStereotypeAnalysis(targetPlatform) {
+        if (targetPlatform === "TikTok") {
+          return D.platforms;
+        }
+
+        return D.platforms.filter((p) => p.platform !== "TikTok");
+      }
+
+      function rankPlatformComposite(platformName, questions) {
+        const sorted = platformsForStereotypeAnalysis(platformName).sort(
+          (a, b) => {
+            return meanScore(b, questions) - meanScore(a, questions);
+          },
+        );
+
+        return sorted.findIndex((p) => p.platform === platformName) + 1;
+      }
+
+      function makeStereotypeSection() {
+        const rows = stereotypes
+          .filter((s) => getPlatform(s.platform))
+          .map((s) => {
+            const p = getPlatform(s.platform);
+
+            const compositeScore = meanScore(p, s.questions);
+            const rank = rankPlatformComposite(s.platform, s.questions);
+
+            const topPlatform = platformsForStereotypeAnalysis(s.platform).sort(
+              (a, b) => {
+                return meanScore(b, s.questions) - meanScore(a, s.questions);
+              },
+            )[0];
+
+            const topScore = meanScore(topPlatform, s.questions);
+
+            const questionLabels = s.questions
+              .map((q) => `${q}: ${getQuestion(q).short}`)
+              .join(", ");
+
+            const individualScores = s.questions
+              .map((q) => `${q} = ${p.scores[q].toFixed(2)}`)
+              .join(", ");
+
+            let verdict = "Weak";
+            if (rank === 1) verdict = "Supported";
+            else if (rank <= 3) verdict = "Partly supported";
+
+            return {
+              ...s,
+              score: compositeScore,
+              rank,
+              verdict,
+              questionLabels,
+              individualScores,
+              topPlatform: topPlatform.platform,
+              topScore,
+            };
+          });
+
+        new Chart(document.getElementById("stereoChart"), {
+          type: "bar",
+          data: {
+            labels: rows.map((r) => r.platform),
+            datasets: [
+              {
+                label: "Composite stereotype score",
+                data: rows.map((r) => r.score),
+                backgroundColor: rows.map((r) => {
+                  if (r.verdict === "Supported") return "#E8472A";
+                  if (r.verdict === "Partly supported") return "#C8A96E";
+                  return "#888780";
+                }),
+                borderColor: "#1A1209",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  generateLabels: function () {
+                    return [
+                      {
+                        text: "Supported = ranked #1",
+                        fillStyle: "#E8472A",
+                        strokeStyle: "#1A1209",
+                        lineWidth: 1,
+                      },
+                      {
+                        text: "Partly supported = ranked #2–3",
+                        fillStyle: "#C8A96E",
+                        strokeStyle: "#1A1209",
+                        lineWidth: 1,
+                      },
+                      {
+                        text: "Weak = ranked below #3",
+                        fillStyle: "#888780",
+                        strokeStyle: "#1A1209",
+                        lineWidth: 1,
+                      },
+                    ];
+                  },
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  title: (items) => rows[items[0].dataIndex].claim,
+                  label: (item) => {
+                    const r = rows[item.dataIndex];
+                    return [
+                      `Composite score: ${r.score.toFixed(2)} / 5`,
+                      `Based on: ${r.questions.join(", ")}`,
+                      `Individual scores: ${r.individualScores}`,
+                      `Rank: #${r.rank} among platforms`,
+                      `Verdict: ${r.verdict}`,
+                    ];
+                  },
+                },
+              },
+            },
+            scales: {
+              y: {
+                min: 1,
+                max: 5,
+                ticks: {
+                  callback: (value) => value + "/5",
+                },
+                grid: {
+                  color: "rgba(200,169,110,0.15)",
+                },
+              },
+              x: {
+                grid: { display: false },
+                ticks: {
+                  font: { size: 10 },
+                },
+              },
+            },
+          },
+        });
+
+        document.getElementById("stereotypeText").innerHTML = `
+  <div class="stereo-grid">
+    ${rows
+      .map((r) => {
+        const cls =
+          r.verdict === "Supported"
+            ? "v-supported"
+            : r.verdict === "Partly supported"
+              ? "v-partly"
+              : "v-weak";
+
+        return `
+        <div class="stereo-card">
+          <div class="stereo-platform">${r.platform}</div>
+          <div class="stereo-claim">${r.claim}</div>
+
+          <span class="verdict ${cls}">${r.verdict}</span>
+
+          <div class="stereo-score">${r.score.toFixed(2)} / 5</div>
+
+          <div class="stereo-meta">
+            Rank: #${r.rank}<br>
+            Highest: ${r.topPlatform} (${r.topScore.toFixed(2)} / 5)<br>
+            Questions: ${r.questions.join(", ")}
+          </div>
+        </div>
+      `;
+      })
+      .join("")}
+  </div>
+`;
+      }
+
+      updateChart();
+      renderWordMap("Q17");
+      makeStereotypeSection();
+    </script>
+
+    <a href="01_a_intro.html#story-section" class="back-btn"
+      >Back to Overview</a
+    >
+  </body>
+</html>

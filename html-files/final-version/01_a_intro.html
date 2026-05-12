@@ -692,12 +692,11 @@
     <!-- HERO -->
     <div class="hero">
       <p class="eyebrow">
-        A survey of 481 respondents · Social media &amp; mental health
+        Social media &amp; mental health survey
       </p>
       <h1>Was <em>grandma</em> right,<br />is it really the phone?</h1>
       <p class="hero-sub">
-        We collected the data. We ran the numbers. We are slightly scared of
-        what we found.
+        We collected the data. We ran the numbers. It is time to explore the story behind.
       </p>
       <p class="scroll-hint">↓ scroll to find out</p>
     </div>
@@ -707,8 +706,7 @@
       <p class="sec-label">01 — Meet the cohort</p>
       <h2>481 people.<br />One very loaded question.</h2>
       <p class="lead">
-        Before we get to the doom-scrolling and the sleep deprivation — let's
-        meet the people who confessed.
+        Before we zoom in on the relationships, let's meet the cohort. Who are they and what are they doing when they are not scrolling?
       </p>
 
       <div class="stat-row">
@@ -736,7 +734,7 @@
           <div class="pie-titles">
             <p class="pie-title" id="pie-title">Who's using social media?</p>
             <p class="pie-desc" id="pie-desc">
-              Click a tab to explore different breakdowns
+              Click a tab to explore different breakdowns, hover over to see the details
             </p>
           </div>
           <div class="morph-tabs">
@@ -773,10 +771,10 @@
     <!-- ── SECTION 2: WHO THEY ARE ───────────────────────────────────────────── -->
     <section>
       <p class="sec-label">02 — Who they are</p>
-      <h2>Students, workers,<br />and everyone else.</h2>
+      <h2>University students, workers,<br /> your (grand)parents.</h2>
       <p class="lead">
-        The vast majority are students — which, for a study on doom-scrolling
-        and anxiety, feels very on brand.
+        This cohort is dominated by young adults at university, mixed with salaried workers and some retired people. Most of them 
+        are single.
       </p>
 
       <div class="two-col">
@@ -784,7 +782,7 @@
         <div class="card">
           <p class="card-title">Occupation</p>
           <p class="card-desc">
-            What do they do all day? (Presumably also scroll.)
+            What do they do?
           </p>
           <ul class="occ-list" id="occ-list"></ul>
         </div>
@@ -792,7 +790,7 @@
         <!-- Relationship × gender stacked bar -->
         <div class="card">
           <p class="card-title">Relationship status by gender</p>
-          <p class="card-desc">Stacked — hover for exact counts</p>
+          <p class="card-desc">Hover for exact counts</p>
           <div class="leg">
             <span
               ><span class="leg-dot" style="background: #d4537e"></span
@@ -830,9 +828,9 @@
       <p class="sec-label">03 — How are they actually doing?</p>
       <h2>The mental health<br />report card.</h2>
       <p class="lead">
-        Eleven questions, all scored 1–5. The bar chart shows every indicator —
+        Eleven questions, all scored 1–5 (which keep in mind, is a very simplified scale). The bar chart shows every indicator colored by the level of concern —
         click any card to read the full question. Higher score = more frequent
-        or more severe.
+        or more severe the reporting is.
       </p>
 
       <div class="card mh-bar-section">
@@ -884,8 +882,8 @@
       <p class="sec-label">04 — What comes next</p>
       <h2>The story is just<br />getting started.</h2>
       <p class="lead">
-        We've met the cohort. Now we go deeper — three chapters, three ways to
-        think about screens and minds.
+        We've met the cohort. Now we go deeper, choose a path and explore the subgroups, their habits vs screen time, find your 
+        own cluster or confirm wheter the clichés are true. The next chapters are waiting for you to dive in.
       </p>
 
       <div class="story-row">
@@ -909,8 +907,7 @@
             <span class="sc-n">02</span>
             <p class="sc-t">Clustering the scrollers</p>
             <p class="sc-d">
-              Doom scrollers, professionals, validation seekers. Three distinct
-              personality types in the data.
+              Doom scrollers, professionals, validation seekers... find a persona and see how they score.
             </p>
             <span class="sc-tag">Categorization</span>
           </div></a
@@ -922,7 +919,7 @@
             <span class="sc-n">03</span>
             <p class="sc-t">Are the stereotypes true?</p>
             <p class="sc-d">
-              Instagram = validation anxiety? Reddit = sleep problems? We tested
+              Do instagram users seek validation and have higher anxiety? Does Reddit cause sleep problems? We tested
               every cliché against real numbers.
             </p>
             <span class="sc-tag">Interactive</span>
@@ -935,8 +932,7 @@
             <span class="sc-n">04</span>
             <p class="sc-t">Mood vs. screen time</p>
             <p class="sc-d">
-              Does more time online mean worse mental health? Or is it more
-              complicated than grandma thinks?
+              Does more time online mean worse mental health? It is probably more complicated than that.
             </p>
             <span class="sc-tag">Deep dive</span>
           </div></a
@@ -945,9 +941,9 @@
 
       <div class="gmbox">
         <p class="gm-q">
-          "Put down that phone, you're going to rot your brain."
+          "So was your grandma right? Probably yes, but she was scrolling Facebook the whole time."
         </p>
-        <p class="gm-a">— Every grandmother, 2012–present</p>
+        <p class="gm-a">— The data</p>
       </div>
     </section>
 
@@ -1104,7 +1100,7 @@
         },
         time: {
           title: "How long do they scroll per day?",
-          desc: "Daily social media usage — 478 users",
+          desc: "Daily social media screen-time (self-reported)",
           center: { num: "116", sub: "spend 5+ hours/day" },
           labels: D.dailyTime.map((t) => t.label),
           data: D.dailyTime.map((t) => t.n),
@@ -1112,7 +1108,7 @@
         },
         platforms: {
           title: "Which platforms do they use?",
-          desc: "Multi-select — users picked all that apply",
+          desc: "Users picked all that apply",
           center: { num: "412", sub: "on YouTube" },
           labels: D.platforms.map((p) => p.name),
           data: D.platforms.map((p) => p.value),
